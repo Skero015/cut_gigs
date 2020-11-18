@@ -61,7 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         suffixIcon: Padding(
                           padding: EdgeInsets.only(right: 10.0),
-                          child: GestureDetector(
+                          child: GestureDetector(//wrap this around any widget to give it an onTap feature
+                            //e.g) The image below can now be tapped and perform any task you want it to perform
                             child: Image.asset('images/EmailIcon.png', width: 10, height: 10,),
                             onTap: (){
 
@@ -83,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Color(0xFF15AAD9)),
                         ),
-                        errorBorder: UnderlineInputBorder(
+                        errorBorder: UnderlineInputBorder(//The line of the editText changes to red when the validator returns an error
                           borderSide: BorderSide(color: Color(0xFFAB1217),),
                         ),
                       ),
@@ -92,18 +93,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 80.0,top: 40, right: 80),
-                    child: TextFormField(
-                      autofocus: false,
-                      controller: _password,
-                      decoration: InputDecoration(
+                    child: TextFormField(//This is an EditText
+                      autofocus: false,//we tell the screen not to autofocus ( or auto click) on the EditText when it loads up
+                      controller: _password, // The controller holds the users text.. for the password, we will use password.text to grab the user's text
+                      //validator: ---> validator for the EditText, will be defined later.. check Validator class under config package for example code.
+                      decoration: InputDecoration(//Allows us to decorate the EditText, below we placed the icon at the end (suffixIcon), placed a hint, did some padding and defined the unlinerline color according to its state
                         suffixIcon: Padding(
                           padding: EdgeInsets.only(right: 10.0),
-                          child: GestureDetector(
+                          child: GestureDetector(//wrap this around any widget to give it an onTap feature
+                            //e.g) The image below can now be tapped and perform any task you want it to perform
                             child: Image.asset('images/Vector.png', width: 2, height: 2,),
                             onTap: (){
 
                               setState(() {
-
+                                //In here, when the password eye icon on the right is clicked. It will change the state of the icon to a different icon
+                                //and allow the user to see the password they are typing in
                               });
 
                             },
@@ -117,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Color(0xFF15AAD9)),
                         ),
-                        errorBorder: UnderlineInputBorder(
+                        errorBorder: UnderlineInputBorder(//The line of the editText changes to red when the validator returns an error
                           borderSide: BorderSide(color: Color(0xFFAB1217),),
                         ),
                       ),
@@ -127,11 +131,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 50.0),
-                      child: GestureDetector(
+                      child: GestureDetector(//wrap this around any widget to give it an onTap feature
                           child: Text('Forgot Password ?',style: GoogleFonts.poppins(fontSize: 23, fontWeight: FontWeight.w400, color: Colors.grey[600], letterSpacing: 0.8),),
 
                         onTap: () {
-
+                            //Here we can navigate to a screen or open a dialog when the user clicks the Forgot Password text
                         },
 
                       ),
@@ -140,11 +144,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 40.0,left: 80, right: 80),
-                      child: RaisedButton(
+                      child: RaisedButton(//Button comes with its own onTap or onPressed method .... I do not normally decorate buttons with Ink and Container widgets, I had to find a way to give it gradient colors since RaisedButton does not come with the decoration: field
                         onPressed: () {
 
-                        },
-                          child: Ink(
+                          //In this onPressed of the RaisedButton we will not need the setState method because
+                          // we are not changing the state of the UI.
+                          //We will only be this button to navigate to authenticate the user and move to a different screen
+
+                        },//Ink widget here, is a child of the Button, learning more about it however...
+                          child: Ink(//The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                   colors: <Color>[
@@ -176,11 +184,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 40.0,left: 80, right: 80),
-                      child: RaisedButton(
+                      child: RaisedButton(//Button comes with its own onTap or onPressed method .... I do not normally decorate buttons with Ink and Container widgets, I had to find a way to give it gradient colors since RaisedButton does not come with the decoration: field
                         onPressed: () {
 
-                        },
-                        child: Ink(
+                          //In this onPressed of the RaisedButton we will not need the setState method because
+                          // we are not changing the state of the UI.
+                          //We will only be using the button to navigate to the Register screen
+
+
+                        },//Ink widget here, is a child of the Button, learning more about it however...
+                        child: Ink(//The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
                                 colors: <Color>[
@@ -188,10 +201,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Color(0xFFAB1217),
                                 ]
                             ),
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),// The border radius of the Ink Widget decoration
                           ),
                           child: Container(
-                              constraints: const BoxConstraints(minWidth: 50.0, minHeight: 70),
+                              constraints: const BoxConstraints(minWidth: 50.0, minHeight: 70),//
                               alignment: Alignment.center,
                               child: Text('Sign Up',textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white, letterSpacing: 0.8),)),
                         ),
