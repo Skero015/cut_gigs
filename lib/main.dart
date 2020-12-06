@@ -1,3 +1,5 @@
+import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
+import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,14 +43,20 @@ class MyApp extends StatelessWidget {
             ResponsiveBreakpoint.autoScaleDown(1600, name: DESKTOP, scaleFactor: 1.30),
             ResponsiveBreakpoint.autoScale(2460, name: "4K",scaleFactor: 1.90),
           ],
-          background: Container(color: Colors.white)),
+          background: Image(
+            image: AssetImage('images/MainBackground.png'),
+            fit: BoxFit.cover,
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+          ),
+      ),
       title: 'CUT Gigs',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(),
+      home: CustomNavBar(Colors.transparent),
     );
   }
 }
