@@ -60,3 +60,19 @@ final TextStyle venueCardTextStyle = GoogleFonts.poppins(
   fontWeight: FontWeight.w400,
 );
 
+//the following is for the side drawer
+final TextStyle sdHeadingTextStyle = GoogleFonts.poppins(
+  fontSize: 30,
+  color: Colors.black,
+  fontWeight: FontWeight.w400,
+);
+final TextStyle sdEmailTextStyle = GoogleFonts.poppins(
+  fontSize: 23,
+  color: Colors.black,
+  fontWeight: FontWeight.w300,
+);
+final TextStyle sdNumberTextStyle = GoogleFonts.poppins(
+  fontSize: 23,
+  color: Colors.black,
+  fontWeight: FontWeight.w300,
+);
