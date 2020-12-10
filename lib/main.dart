@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: CustomNavBar(Colors.transparent),
+      home: CustomNavBar(),
     );
   }
 }

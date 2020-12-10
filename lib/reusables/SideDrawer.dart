@@ -19,7 +19,7 @@ class _SideDrawerState extends State<SideDrawer> {
               left: -75,
               top: -10,
               child: Image(
-                image: AssetImage('images/DrawerTopCorner.png'),
+                image: AssetImage('images/background_images/DrawerTopCorner.png'),
                 height: 450,
                 width: 450,
               ),
@@ -36,7 +36,7 @@ class _SideDrawerState extends State<SideDrawer> {
                           SizedBox(width: 110,),
                           GestureDetector(
                             child: Image(
-                              image: AssetImage('images/CancelIcon.png'),
+                              image: AssetImage('images/drawer_icons/CancelIcon.png'),
                               fit: BoxFit.fill,
                               height: 50.0,
                               width: 50.0,
@@ -61,7 +61,7 @@ class _SideDrawerState extends State<SideDrawer> {
                     SizedBox(height: 120,),
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
-                      child: SideDrawerCategory('Edit Profile','images/EditIcon.png'),
+                      child: SideDrawerCategory('Edit Profile','images/drawer_icons/EditIcon.png'),
                     ),
                     SizedBox(height: 16,),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
@@ -74,13 +74,13 @@ class _SideDrawerState extends State<SideDrawer> {
                     SizedBox(height: 52,),
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
-                      child: SideDrawerCategory('Help','images/HelpIcon.png'),
+                      child: SideDrawerCategory('Help','images/drawer_icons/HelpIcon.png'),
                     ),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                     SizedBox(height: 53,),
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
-                      child: SideDrawerCategory('Host Login','images/LoginIcon.png'),
+                      child: SideDrawerCategory('Host Login','images/drawer_icons/LoginIcon.png'),
                     ),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
 

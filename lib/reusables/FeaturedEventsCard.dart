@@ -28,10 +28,15 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
         children: <Widget>[
           ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(22.0),),
-            child: Image(
-              image: AssetImage('images/EventImage.png'),
-              height: 237,
-              fit: BoxFit.cover,
+            child: GestureDetector(
+              child: Image(
+                image: AssetImage('images/EventImage.png'),
+                height: 237,
+                fit: BoxFit.cover,
+              ),
+              onTap: () {
+
+              },
             ),
           ),
           Column(
