@@ -25,8 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Image(
             image: AssetImage('images/MainBackground.png'),
             fit: BoxFit.cover,
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,// gives you height of the device
+            width: MediaQuery.of(context).size.width,// gives you width of the device
           ),
           SafeArea(
               child: Column(
