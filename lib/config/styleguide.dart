@@ -1,3 +1,5 @@
+import 'package:cut_gigs/screens/EventDetailsScreen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -75,4 +77,30 @@ final TextStyle sdNumberTextStyle = GoogleFonts.poppins(
   fontSize: 23,
   color: Colors.black,
   fontWeight: FontWeight.w300,
+);
+
+//The following is for the EventDetailsScreen
+final TextStyle summaryHeadingTextStyle = GoogleFonts.poppins(
+  fontSize: 22,
+  color: Colors.black87,
+  fontWeight: FontWeight.w600,
+  fontStyle: FontStyle.normal,
+  shadows: <Shadow>[
+    Shadow(
+      offset: Offset(3.0, 3.0),
+      blurRadius: 1.8,
+      color: Colors.grey[400],
+    ),
+  ],
+);
+final TextStyle summarySubheadingTextStyle = GoogleFonts.poppins(
+  fontSize: 21,
+  color: Colors.black,
+  fontWeight: FontWeight.w400,
+);
+final TextStyle nameHeadingTextStyle = GoogleFonts.poppins(
+  fontSize: 22,
+  color: Colors.black87,
+  fontWeight: FontWeight.w700,
+  fontStyle: FontStyle.normal,
 );

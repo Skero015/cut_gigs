@@ -1,4 +1,6 @@
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/screens/EventDetailsScreen.dart';
+import 'package:cut_gigs/screens/MyEventsScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -28,10 +30,15 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
         children: <Widget>[
           ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(22.0),),
-            child: Image(
-              image: AssetImage('images/EventImage.png'),
-              height: 237,
-              fit: BoxFit.cover,
+            child: GestureDetector(
+              child: Image(
+                image: AssetImage('images/EventImage.png'),
+                height: 237,
+                fit: BoxFit.cover,
+              ),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
+              },
             ),
           ),
           Column(
@@ -62,7 +69,7 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text('Faculty of Engineering Graduation',style: featuredCardTitleTextStyle,),
+                        Text('Faculty of Engineering Graduation',style: featuredCardTitleTextStyle, overflow: TextOverflow.ellipsis),
                         Row(
                           children: <Widget>[
                             Text('CUT Boet Troskie Hall',style: featuredCardVenueTextStyle,),
