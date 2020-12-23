@@ -29,7 +29,6 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
       key: _scaffoldKeyAttendEvent,
       resizeToAvoidBottomInset: false,
       resizeToAvoidBottomPadding: false,
-      //drawer: SideDrawer(),
       body: SafeArea(
         child: Flex(
           direction: Axis.vertical,
@@ -61,7 +60,7 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                       ],
                     ),
                     onTap: () {
-                      _scaffoldKeyAttendEvent.currentState.openDrawer();
+                      Navigator.of(context).pop();
                     },
                   ),
                   Image(
@@ -143,7 +142,7 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                     CircleAvatar(
                       radius: 165.0,
                       backgroundColor: Colors.lightBlueAccent.shade50,
-                      backgroundImage: _isEnabled
+                      backgroundImage: _isEnabled //if isEnabled is equal to true, enable set profile picture, if false set disable button and set default profile picture
                           ? _imageFile == null
                               ? AssetImage('images/defaultprofilepicture.jpg')
                               : FileImage(File(_imageFile.path))

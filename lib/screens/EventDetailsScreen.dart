@@ -1,4 +1,6 @@
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/screens/AttendEventScreen.dart';
+import 'package:cut_gigs/screens/SpeakerDetailsScreens.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -159,6 +161,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     //In this onPressed of the RaisedButton we will not need the setState method because
                     // we are not changing the state of the UI.
                     //We will only be this button to navigate to authenticate the user and move to a different screen
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttendEventScreen()));
+
 
                   },//Ink widget here, is a child of the Button, learning more about it however...
                   child: Ink(//The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
@@ -259,24 +263,45 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: Column(
-        children: <Widget>[
-          CircleAvatar(
-            maxRadius: 52,
-            backgroundColor: Color(0xFF9B1318),
-            child: ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(50.0),),
-              child: Image(
-                image: AssetImage(imgPath),
-                height: 100,
-                fit: BoxFit.cover,
+      child: GestureDetector(
+        onTap:() => Navigator.of(context).push(MaterialPageRoute(builder: (context) => SpeakerDetailsScreen())),
+        child: Column(
+          children: <Widget>[
+            CircleAvatar(
+              maxRadius: 52,
+              backgroundColor: Color(0xFF9B1318),
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(50.0),),
+                child: Image(
+                  image: AssetImage(imgPath),
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Text('Cody Fisher', style: nameHeadingTextStyle,),
+            Text('Vodacom', style: summarySubheadingTextStyle,),
+          ],
+        ),
+
+      ),
+    );
+  }
+
+  void SpeakerInformation(BuildContext context){
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (ctx) => Scaffold(
+            body: Center(
+              child: Hero(
+                tag: 'speaker_details_tag',
+                child: SpeakerDetailsScreen(),
               ),
             ),
           ),
-          Text('Cody Fisher', style: nameHeadingTextStyle,),
-          Text('Vodacom', style: summarySubheadingTextStyle,),
-        ],
       ),
     );
+
   }
 }
