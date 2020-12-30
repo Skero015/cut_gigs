@@ -70,7 +70,7 @@ class _MainDialogBoxState extends State<MainDialogBox> {
             radius: 45,
             child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(45)),
-                child: Image.asset("assets/model.jpeg")
+                child: Image.asset("images/speaker1.png")
             ),
           ),
         ),
