@@ -1,4 +1,5 @@
 import 'package:cut_gigs/screens/auth_screens/LoginScreen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -15,6 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
   SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     Future.delayed(Duration(milliseconds: 2700), () async {
+      await Firebase.initializeApp();
       Navigator.of(context).pop();
       Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) =>

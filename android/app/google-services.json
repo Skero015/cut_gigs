@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "331210954672",
+    "project_id": "cut-gigs-30f0e",
+    "storage_bucket": "cut-gigs-30f0e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331210954672:android:db97c357c44ce9c60ba875",
+        "android_client_info": {
+          "package_name": "com.CUT.cut_gigs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331210954672-pblku230hdnpeu7itv7ed4t34gcpepq6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.CUT.cut_gigs",
+            "certificate_hash": "6771b95aaf3adb09cace8673386e328a3641aea4"
+          }
+        },
+        {
+          "client_id": "331210954672-k54t6ad9jpeoc5roha1tqafdm8s961lj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO6TiV1mRZESSALvHJqbr7pCKQRlch5Ak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331210954672-k54t6ad9jpeoc5roha1tqafdm8s961lj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
