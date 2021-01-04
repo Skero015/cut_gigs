@@ -1,6 +1,9 @@
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
+import 'package:cut_gigs/screens/AttendEventScreen.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
+import 'package:cut_gigs/screens/SpeakerDetailsScreens.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
+import 'package:cut_gigs/screens/TagScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +60,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: CustomNavBar(),
+     // home: TagScreen(),
+      //home: AttendEventScreen(),
+      //home: SpeakerDetailsScreen(),
     );
   }
 }
