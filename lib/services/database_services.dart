@@ -1,6 +1,7 @@
 
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cut_gigs/models/Category.dart';
 import 'package:cut_gigs/services/api_services.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -18,19 +19,60 @@ class DatabaseService {
 
   Future addUserData(
       String name, String surname, String phoneNumber ,String email, String title, String country) async {
-    return await userCollection.document(uid).setData({
+    return await userCollection.doc(uid).set({
       'name': name,
       'surname': surname,
       'phoneNumber': phoneNumber,
       'email': email,
       'title':title,
       "country": country,
+      'isAdmin' : false,
+      'isHost' : false,
     });
   }
 
   Future addUserphone(String phoneNumber ) async {
-    return await userCollection.document(uid).updateData({
+    return await userCollection.doc(uid).update({
       'phoneNumber': phoneNumber
     });
+  }
+
+  Future updateEventFavourites(bool isFavourite, String eventID) async {
+    
+    try{
+      await userCollection.doc(uid).collection('Events').doc(eventID).get().then((doc) async{
+        if(doc.exists){
+          return await userCollection.doc(uid).update({
+            'isFavourite' : isFavourite
+          });
+        }else{
+          return await userCollection.doc(uid).set({
+            'eventID' : isFavourite,
+            'isFavourite' : isFavourite,
+            'tagID' : "",
+          });
+        }
+
+      });
+    }catch(e){
+      return null;
+    }
+
+  }
+
+  Future<List> getEventFavourites() async{
+
+    QuerySnapshot snapshot = await userCollection.doc(uid)
+        .collection('Events')
+        .get();
+
+    List<dynamic> favouritesList = [];
+
+    snapshot.docs.forEach((element) {
+      Category category = Category.fromMap(element.data());
+      favouritesList.add(category);
+    });
+
+    return favouritesList;
   }
 }

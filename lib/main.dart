@@ -1,6 +1,9 @@
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +28,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    Firebase.initializeApp();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    if(auth.currentUser != null)
+    Preferences.uid = auth.currentUser.uid;
 
     return MaterialApp(
       builder: (context, widget) => ResponsiveWrapper.builder(
@@ -56,7 +63,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(),
+      home: CustomNavBar(),
     );
   }
 }
