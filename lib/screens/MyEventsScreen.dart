@@ -1,5 +1,6 @@
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/reusables/SideDrawer.dart';
+import 'package:cut_gigs/screens/TagScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -107,10 +108,10 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
                       itemBuilder: (BuildContext context, int index){
                         return index == 0 ? Padding(
                           padding: const EdgeInsets.fromLTRB( 10.0, 42.0, 10.0 , 13.0),
-                          child: eventSummaryCard(),
+                          child: eventSummaryCard(context),
                         ) : Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
-                          child: eventSummaryCard(),
+                          child: eventSummaryCard(context),
                         );
                       },
                     ),
@@ -122,10 +123,10 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
                       itemBuilder: (BuildContext context, int index){
                         return index == 0 ? Padding(
                           padding: const EdgeInsets.fromLTRB( 10.0, 42.0, 10.0 , 13.0),
-                          child: eventSummaryCard(),
+                          child: eventSummaryCard(context),
                         ) : Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
-                          child: eventSummaryCard(),
+                          child: eventSummaryCard(context),
                         );
                       },
                     ),
@@ -140,74 +141,79 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
   }
 }
 
-Widget eventSummaryCard(){
+Widget eventSummaryCard(BuildContext context){
 
 
   return Container(
-    child: Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 30),
-          child: Row(
-            children: <Widget>[
-              //image on the right
-              ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(25.0),),
-                child: Image(
-                  image: AssetImage('images/EventImage.png'),
-                  height: 140,
-                  width: 140,
-                  fit: BoxFit.cover,
+    child: GestureDetector(
+      onTap:() {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => TagScreen()));
+      },
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 30),
+            child: Row(
+              children: <Widget>[
+                //image on the right
+                ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(25.0),),
+                  child: Image(
+                    image: AssetImage('images/EventImage.png'),
+                    height: 140,
+                    width: 140,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text('Varsity Cup: CUT vs UOFS',style: eventsCardTitleTextStyle,),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Varsity Cup: CUT vs UOFS',style: eventsCardTitleTextStyle,),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Image(
+                                  image: AssetImage('images/DateIcon.png'),
+                                  height: 25,
+                                  width: 20,
+                                  fit: BoxFit.cover,
+                                ),
+                                SizedBox(width: 10,),
+                                Text('17 August 2020',style: dateCardTextStyle,),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 5.0,),
+                      Row(
                         children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Image(
-                                image: AssetImage('images/DateIcon.png'),
-                                height: 25,
-                                width: 20,
-                                fit: BoxFit.cover,
-                              ),
-                              SizedBox(width: 10,),
-                              Text('17 August 2020',style: dateCardTextStyle,),
-                            ],
+                          Image(
+                            image: AssetImage('images/LocationIcon.png'),
+                            height: 25,
+                            width: 20,
+                            fit: BoxFit.fitHeight,
                           ),
+                          SizedBox(width: 10,),
+                          Text('CUT Soccer Grounds',style: venueCardTextStyle,),
                         ],
                       ),
-                    ),
-                    SizedBox(height: 5.0,),
-                    Row(
-                      children: <Widget>[
-                        Image(
-                          image: AssetImage('images/LocationIcon.png'),
-                          height: 25,
-                          width: 20,
-                          fit: BoxFit.fitHeight,
-                        ),
-                        SizedBox(width: 10,),
-                        Text('CUT Soccer Grounds',style: venueCardTextStyle,),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-            ],
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 10,),
-        Divider(thickness: 0.5, color: Colors.black),
-      ],
+          SizedBox(height: 10,),
+          Divider(thickness: 0.5, color: Colors.black),
+        ],
+      ),
     ),
   );
 }
