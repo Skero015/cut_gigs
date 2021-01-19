@@ -118,7 +118,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       SizedBox(height: 40,),
                       Padding(
                         padding: const EdgeInsets.only(left: 25.0),
-                        child: eventSummary('images/DateIcon.png', '29 May 2020', '12:00 - 18:00'),
+                        child: eventSummary('images/DateIcon.png', formatter.format(eventDate), DateFormat('hh:mm a').format(eventDate) + " - "),
                       ),
                       SizedBox(height: 20,),
                       Padding(
@@ -127,7 +127,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       ),
                       SizedBox(height: 20,),
                       dropdownMenuCard('About', 0),
-                      dropdownClickedMap.values.elementAt(0) == true ? Text(eventNotifier.currentEvent.about, style: summarySubheadingTextStyle,) : Container(),
+                      dropdownClickedMap.values.elementAt(0) == true ? Padding(
+                        padding: const EdgeInsets.only(left: 25.0),
+                        child: Text(eventNotifier.currentEvent.about, style: summarySubheadingTextStyle,),
+                      ) : Container(),
                       dropdownMenuCard('Speakers', 1),
                       dropdownClickedMap.values.elementAt(1) == true ? SizedBox(
                         height: 180.0,
@@ -200,9 +203,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 child: RaisedButton(//Button comes with its own onTap or onPressed method .... I do not normally decorate buttons with Ink and Container widgets, I had to find a way to give it gradient colors since RaisedButton does not come with the decoration: field
                   onPressed: () {
 
-                    //In this onPressed of the RaisedButton we will not need the setState method because
-                    // we are not changing the state of the UI.
-                    //We will only be this button to navigate to authenticate the user and move to a different screen
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
 
                   },//Ink widget here, is a child of the Button, learning more about it however...
                   child: Ink(//The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
