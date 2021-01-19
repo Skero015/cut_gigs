@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cut_gigs/models/Category.dart';
+import 'package:cut_gigs/models/Favourite.dart';
 import 'package:cut_gigs/services/api_services.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -38,15 +39,15 @@ class DatabaseService {
   }
 
   Future updateEventFavourites(bool isFavourite, String eventID) async {
-    
+
     try{
       await userCollection.doc(uid).collection('Events').doc(eventID).get().then((doc) async{
         if(doc.exists){
-          return await userCollection.doc(uid).update({
+          return await userCollection.doc(uid).collection('Events').doc(eventID).update({
             'isFavourite' : isFavourite
           });
         }else{
-          return await userCollection.doc(uid).set({
+          return await userCollection.doc(uid).collection('Events').doc(eventID).set({
             'eventID' : isFavourite,
             'isFavourite' : isFavourite,
             'tagID' : "",
@@ -54,8 +55,10 @@ class DatabaseService {
         }
 
       });
+
+      print('done changing favs');
     }catch(e){
-      return null;
+      print(e.toString());
     }
 
   }
@@ -69,8 +72,8 @@ class DatabaseService {
     List<dynamic> favouritesList = [];
 
     snapshot.docs.forEach((element) {
-      Category category = Category.fromMap(element.data());
-      favouritesList.add(category);
+      Favourite favourite = Favourite.fromMap(element.data());
+      favouritesList.add(favourite);
     });
 
     return favouritesList;

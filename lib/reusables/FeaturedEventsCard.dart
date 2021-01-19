@@ -1,10 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/screens/EventDetailsScreen.dart';
 import 'package:cut_gigs/screens/MyEventsScreen.dart';
+import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FeaturedEventsCard extends StatefulWidget {
+
+  AsyncSnapshot<dynamic> snapshot;
+  int index;
+  BuildContext context;
+
+  FeaturedEventsCard({this.snapshot, this.index, this.context});
+
   @override
   _FeaturedEventsCardState createState() => _FeaturedEventsCardState();
 }
@@ -31,9 +41,10 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
           ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(22.0),),
             child: GestureDetector(
-              child: Image(
-                image: AssetImage('images/EventImage.png'),
-                height: 237,
+              child: CachedNetworkImage(
+                imageUrl: widget.snapshot.data[widget.index].image,
+                height: 240,
+                width: double.infinity,
                 fit: BoxFit.cover,
               ),
               onTap: () {
@@ -69,10 +80,10 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text('Faculty of Engineering Graduation',style: featuredCardTitleTextStyle, overflow: TextOverflow.ellipsis),
+                        Text(widget.snapshot.data[widget.index].title,style: featuredCardTitleTextStyle, overflow: TextOverflow.ellipsis),
                         Row(
                           children: <Widget>[
-                            Text('CUT Boet Troskie Hall',style: featuredCardVenueTextStyle,),
+                            Text(widget.snapshot.data[widget.index].location,style: featuredCardVenueTextStyle,),
                             Padding(
                               padding: const EdgeInsets.only(left: 170.0),
                               child: GestureDetector(
@@ -82,10 +93,14 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
                                   width: 45,
                                   fit: BoxFit.fitHeight,
                                 ),
-                                onTap: (){
+                                onTap: ()async{
                                   setState(() {
                                     isFavImgClicked ? isFavImgClicked = false : isFavImgClicked = true;
                                   });
+
+                                  await DatabaseService(uid: Preferences.uid).updateEventFavourites(isFavImgClicked, widget.snapshot.data[widget.index].eventID);
+
+                                  print(isFavImgClicked);
                                 },
                               ),
                             ),

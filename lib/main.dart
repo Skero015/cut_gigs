@@ -1,4 +1,5 @@
 import 'package:cut_gigs/config/preferences.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
@@ -16,7 +17,13 @@ void main() async => {
 
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp,DeviceOrientation.portraitDown])
-      .then((_) => runApp(MyApp()),
+      .then((_) => runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => EventNotifier(),
+        ),
+      ],
+      child: MyApp())),
   )
 };
 
@@ -28,10 +35,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    Firebase.initializeApp();
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    if(auth.currentUser != null)
-    Preferences.uid = auth.currentUser.uid;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+
+      await Firebase.initializeApp().then((value) {
+
+        final FirebaseAuth auth = FirebaseAuth.instance;
+        if(auth.currentUser != null)
+          Preferences.uid = auth.currentUser.uid;
+      });
+    });
 
     return MaterialApp(
       builder: (context, widget) => ResponsiveWrapper.builder(

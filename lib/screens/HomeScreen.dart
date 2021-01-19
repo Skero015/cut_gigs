@@ -1,6 +1,7 @@
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/models/Category.dart';
 import 'package:cut_gigs/models/Event.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CategoryCard.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/reusables/FeaturedEventsCard.dart';
@@ -11,6 +12,7 @@ import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -31,10 +33,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future getCategoryFuture;
 
   DateTime date, eventDate;
+
+  EventNotifier eventNotifier;
+
   @override
   void initState() {
     super.initState();
-    
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+    });
     getCategoryFuture = getCategories();
 
     _tabController = new TabController(length: 2, vsync: this);
@@ -92,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         child: FutureBuilder(
                           future: getCategoryFuture,
                           builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            print(snapshot.connectionState.toString());
                             return snapshot.connectionState == ConnectionState.done  && snapshot.data != null ? ListView.builder(
                             primary: false,
                             shrinkWrap: true,
@@ -113,10 +121,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       padding: const EdgeInsets.only(left: 40.0),
                       child: Text('Featured Events',style: boldHeadingTextStyle),
                     ),
-                    Padding(
+                    /*Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 18.0),
-                      child: FeaturedEventsCard(),
-                    ),//works like a carousel
+                      child: FeaturedEventsCard(snapshot: snapshot, index: index,),
+                    ),*/ //works like a carousel
                     SizedBox(height: 5.0,),
                     TabBar(
                       indicatorColor: Colors.yellow[800],
@@ -135,9 +143,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),
                       child: StreamBuilder(
-                        stream: Stream.fromFuture(getEvents()),
+                        initialData: [],
+                        stream: Stream.fromFuture(getEvents(context, eventNotifier)),
                         builder: (context, snapshot) {
-                          return snapshot.connectionState == ConnectionState.done ?
+                          return snapshot.connectionState == ConnectionState.done && snapshot.data != null ?
                           SizedBox(
                             height: 600,
                             child: TabBarView(
@@ -152,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date);
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
-                                      child: date.isBefore(eventDate) ? UpcomingEventsCard(snapshot: snapshot, index: index,) : Container(),
+                                      child: date.isBefore(eventDate) ? UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier) : Container(),
                                     );
                                   },
                                 ),
@@ -165,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date);
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
-                                      child: date.isAfter(eventDate) ? UpcomingEventsCard(snapshot: snapshot, index: index,) : Container(),
+                                      child: date.isAfter(eventDate) ? UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier) : Container(),
                                     );
                                   },
                                 ),

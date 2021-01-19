@@ -1,6 +1,10 @@
 
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cut_gigs/config/preferences.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/services/database_services.dart';
+import 'package:flutter/cupertino.dart';
 
 class Event {
 
@@ -15,10 +19,14 @@ class Event {
   String image;
   String institutionID;
   String location;
+  String locationLatitude;
+  String locationLongitude;
+  String venue;
   String password;
   Map mapDetails;
   bool isPriority;
   bool isPrivate;
+  bool isFavourite;
 
   Event(
       this.eventID,
@@ -31,10 +39,14 @@ class Event {
       this.image,
       this.institutionID,
       this.location,
+      this.locationLatitude,
+      this.locationLongitude,
+      this.venue,
       this.password,
       this.mapDetails,
       this.isPriority,
-      this.isPrivate);
+      this.isPrivate,
+      this.isFavourite);
 
   Event.fromMap(Map<String, dynamic> data){
     this.eventID = data['eventID'];
@@ -48,10 +60,14 @@ class Event {
     this.image = data['image'];
     this.institutionID = data['institutionID'];
     this.location = data['location'];
+    this.locationLatitude = data['locationLatitude'];
+    this.locationLongitude = data['locationLongitude'];
+    this.venue = data['venue'];
     this.password = data['password'];
     this.mapDetails = data['mapDetails'];
     this.isPriority = data['isPriority'];
     this.isPrivate = data['isPrivate'];
+    this.isFavourite = data['isFavourite'];
   }
 
   Map<String, dynamic> toMap() {
@@ -66,28 +82,73 @@ class Event {
       'hostID': hostID,
       'image': image,
       'institutionID': institutionID,
-      'location': location,
-      'password': password,
+      'venue': venue,
+      'location' : location,
+      'locationLongitude': locationLongitude,
+      'locationLatitude': locationLatitude,
       'mapDetails': mapDetails,
+      'password': password,
       'isPriority': isPriority,
       'isPrivate': isPrivate,
+      'isFavourite' : isFavourite,
     };
   }
 }
 
-Future<List> getEvents() async{
+Future<List> getEvents(BuildContext context, EventNotifier eventNotifier) async{
 
-  QuerySnapshot snapshots = await FirebaseFirestore.instance
-      .collection('Events')
-      .get();
+  QuerySnapshot snapshots;
+  DocumentSnapshot docSnapshot;
 
   List<Event> _eventList = [];
+  print("context " + context.toString());
+  try{
+    await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
 
-  snapshots.docs.forEach((element) {
+      print('got fav events in user collection');
+      if(context.toString().contains("FavouritesScreen")){
+        print('inside if statement');
 
-    Event event = Event.fromMap(element.data());
-    _eventList.add(event);
-  });
+        int i = 0;
 
+        while(i < value.length){
+          docSnapshot = await FirebaseFirestore.instance
+              .collection('Events')
+              .doc(value[i].eventID)
+              .get();
+
+          Event event = Event.fromMap(docSnapshot.data());
+          event.isFavourite = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).isFavourite;
+          _eventList.add(event);
+          print(event.eventID);
+
+          i++;
+        }
+
+        print('fav docs got');
+      }else{
+        print('inside else');
+        snapshots = await FirebaseFirestore.instance
+            .collection('Events')
+            .get();
+
+        snapshots.docs.forEach((element) {
+          print(element.id);
+          Event event = Event.fromMap(element.data());
+          event.isFavourite = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).isFavourite;
+          _eventList.add(event);
+
+          print(_eventList.length);
+        });
+        print('docs got');
+      }
+
+      print('done placing the events in list');
+    });
+  }catch(e){
+    print(e);
+  }
+
+  eventNotifier.eventList = _eventList;
   return _eventList;
 }
