@@ -1,8 +1,18 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/models/Meal.dart';
+import 'package:cut_gigs/models/Organiser.dart';
+import 'package:cut_gigs/models/Speaker.dart';
+import 'package:cut_gigs/models/Sponsor.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   @override
@@ -15,9 +25,21 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   bool isFavImgClicked = false;
   //bool isDropDownClicked = false;
 
+  EventNotifier eventNotifier;
+
+  DateTime eventDate;
+  DateFormat formatter;
+
+  Future getSponsorFuture;
+  Future getSpeakerFuture;
+  Future getOrganiserFuture;
+  Future getMealFuture;
+
   @override
   void initState() {
     super.initState();
+
+    eventNotifier = Provider.of<EventNotifier>(context, listen: false);
 
     dropdownClickedMap = {
       "About" : false,
@@ -30,6 +52,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       "Map" : false,
       "Event Meal Plan" : false,
     };
+
+    eventNotifier.currentEvent.isFavourite == true ? isFavImgClicked = true : isFavImgClicked = false;
+
+    formatter = DateFormat.yMMMd('en_US');
+    eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date);
+
+    getSpeakerFuture = getSpeakers(eventNotifier.currentEvent.eventID);
+    getSponsorFuture = getSponsors(eventNotifier.currentEvent.eventID);
+    getOrganiserFuture = getOrganisers(eventNotifier.currentEvent.eventID);
+    getMealFuture = getMealPlan(eventNotifier.currentEvent.eventID);
   }
 
   @override
@@ -43,8 +75,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             slivers: <Widget>[
               SliverToBoxAdapter(
                 child: Container(
-                  child: Image(
-                    image: AssetImage('images/EventImage.png'),
+                  child: CachedNetworkImage(
+                    imageUrl: eventNotifier.currentEvent.image,
                     height: 300,
                     fit: BoxFit.cover,
                   ),
@@ -64,7 +96,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         children: <Widget>[
                           SizedBox(
                               width: 500,
-                              child: Text('Faculty of Engineering Graduation',style: boldHeadingTextStyle,softWrap: true, textAlign: TextAlign.center,)
+                              child: Text(eventNotifier.currentEvent.title,style: boldHeadingTextStyle,softWrap: true, textAlign: TextAlign.center,)
                           ),
                           GestureDetector(
                             child: Image(
@@ -73,10 +105,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               width: 45,
                               fit: BoxFit.fitHeight,
                             ),
-                            onTap: (){
+                            onTap: ()async{
                               setState(() {
                                 isFavImgClicked ? isFavImgClicked = false : isFavImgClicked = true;
                               });
+
+                              await DatabaseService(uid: Preferences.uid).updateEventFavourites(isFavImgClicked, eventNotifier.currentEvent.eventID);
                             },
                           ),
                         ],
@@ -89,22 +123,27 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       SizedBox(height: 20,),
                       Padding(
                         padding: const EdgeInsets.only(left: 25.0),
-                        child: eventSummary('images/LocationIcon.png', 'CUT Boet Troski Hall', 'Bloemfontein, Free State'),
+                        child: eventSummary('images/LocationIcon.png', eventNotifier.currentEvent.venue, eventNotifier.currentEvent.location),
                       ),
                       SizedBox(height: 20,),
                       dropdownMenuCard('About', 0),
-                      dropdownClickedMap.values.elementAt(0) == true ? Text('Some text that must show when you open About', style: summarySubheadingTextStyle,) : Container(),
+                      dropdownClickedMap.values.elementAt(0) == true ? Text(eventNotifier.currentEvent.about, style: summarySubheadingTextStyle,) : Container(),
                       dropdownMenuCard('Speakers', 1),
                       dropdownClickedMap.values.elementAt(1) == true ? SizedBox(
                         height: 180.0,
-                        child: ListView.builder(
-                          primary: false,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 6,
-                          itemBuilder: (BuildContext context, int index){
-                            return SponsorSpeakerCard('images/speaker1.png');
-                          },
+                        child: FutureBuilder(
+                          future: getSpeakerFuture,
+                          builder: (context, snapshot) {
+                            return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
+                              primary: false,
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: snapshot.data.length,
+                              itemBuilder: (BuildContext context, int index){
+                                return SponsorSpeakerCard(snapshot, index);
+                              },
+                            ) : Container();
+                          }
                         ),
                       ) : Container(),
                       dropdownMenuCard('Event Schedule', 2),
@@ -113,14 +152,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       dropdownMenuCard('Sponsors', 5),
                       dropdownClickedMap.values.elementAt(5) == true ? SizedBox(
                         height: 180.0,
-                        child: ListView.builder(
-                          primary: false,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 6,
-                          itemBuilder: (BuildContext context, int index){
-                            return SponsorSpeakerCard('images/sponsor1.png',);
-                          },
+                        child: FutureBuilder(
+                          future: getSponsorFuture,
+                          builder: (context, snapshot) {
+                            return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
+                              primary: false,
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: snapshot.data.length,
+                              itemBuilder: (BuildContext context, int index){
+                                return SponsorSpeakerCard(snapshot, index);
+                              },
+                            ) : Container();
+                          }
                         ),
                       ) : Container(),
                       dropdownMenuCard('Event Organizers', 6),
@@ -255,7 +299,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Widget SponsorSpeakerCard (String imgPath) {
+  Widget SponsorSpeakerCard (AsyncSnapshot snapshot, int index) {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
@@ -266,15 +310,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             backgroundColor: Color(0xFF9B1318),
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(50.0),),
-              child: Image(
-                image: AssetImage(imgPath),
+              child: CachedNetworkImage(
+                imageUrl: snapshot.data[index].image,
                 height: 100,
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          Text('Cody Fisher', style: nameHeadingTextStyle,),
-          Text('Vodacom', style: summarySubheadingTextStyle,),
+          Text(snapshot.data[index].toString().contains('Speaker') ? snapshot.data[index].name : snapshot.data[index].title, style: nameHeadingTextStyle,),
+          snapshot.data[index].toString().contains('Speaker') ? Text(snapshot.data[index].companyName, style: summarySubheadingTextStyle,) : Container(),
         ],
       ),
     );
