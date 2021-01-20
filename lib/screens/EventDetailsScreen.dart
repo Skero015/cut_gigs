@@ -6,6 +6,8 @@ import 'package:cut_gigs/models/Organiser.dart';
 import 'package:cut_gigs/models/Speaker.dart';
 import 'package:cut_gigs/models/Sponsor.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/screens/AttendEventScreen.dart';
+import 'package:cut_gigs/screens/SpeakerDetailsScreens.dart';
 import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,8 @@ class EventDetailsScreen extends StatefulWidget {
 }
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
+
+  final GlobalKey<ScaffoldState> _scaffoldKeyEventDetails = new GlobalKey<ScaffoldState>(debugLabel: '_scaffoldKeyEventDetails');
 
   Map<String, bool> dropdownClickedMap;
   bool isFavImgClicked = false;
@@ -67,28 +71,34 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKeyEventDetails,
       body: Stack(
         children: <Widget>[
           CustomScrollView(
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
             slivers: <Widget>[
-              SliverToBoxAdapter(
-                child: Container(
-                  child: CachedNetworkImage(
-                    imageUrl: eventNotifier.currentEvent.image,
-                    height: 300,
-                    fit: BoxFit.cover,
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                floating: true,
+                pinned: true,
+                snap: false,
+                stretch: true,
+                elevation: 0,
+                expandedHeight: 300,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: ClipRRect(
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(50.0),),
+                    child: CachedNetworkImage(
+                      imageUrl: eventNotifier.currentEvent.image,
+                      height: 300,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
               SliverFillRemaining(
-                child: Container(
-                  decoration: ShapeDecoration(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(50.0), topRight: Radius.circular(50.0))),
-                  ),
+                child: SingleChildScrollView(
                   child: Column(
                     children: <Widget>[
                       Row(
@@ -203,7 +213,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 child: RaisedButton(//Button comes with its own onTap or onPressed method .... I do not normally decorate buttons with Ink and Container widgets, I had to find a way to give it gradient colors since RaisedButton does not come with the decoration: field
                   onPressed: () {
 
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttendEventScreen()));
 
                   },//Ink widget here, is a child of the Button, learning more about it however...
                   child: Ink(//The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
@@ -304,23 +314,30 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-      child: Column(
-        children: <Widget>[
-          CircleAvatar(
-            maxRadius: 52,
-            backgroundColor: Color(0xFF9B1318),
-            child: ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(50.0),),
-              child: CachedNetworkImage(
-                imageUrl: snapshot.data[index].image,
-                height: 100,
-                fit: BoxFit.cover,
+      child: GestureDetector(
+        onTap:() => snapshot.data[index].toString().contains('Speaker') ? Navigator.of(context).push(MaterialPageRoute(builder: (context) => SpeakerDetailsScreen(snapshot, index, tag: 'speaker_details_tag'+index.toString(),))): Navigator.of(context).push(MaterialPageRoute(builder: (context) => SpeakerDetailsScreen(snapshot, index, tag: 'sponsor_details_tag'+index.toString(),))),
+        child: Column(
+          children: <Widget>[
+            Hero(
+              tag: snapshot.data[index].toString().contains('Speaker') ? 'speaker_details_tag'+index.toString() : 'sponsor_details_tag'+index.toString(),
+              child: CircleAvatar(
+                maxRadius: 52,
+                backgroundColor: Color(0xFF9B1318),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(50.0),),
+                  child: CachedNetworkImage(
+                    memCacheHeight: 1000,
+                    imageUrl: snapshot.data[index].image,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
-          ),
-          Text(snapshot.data[index].toString().contains('Speaker') ? snapshot.data[index].name : snapshot.data[index].title, style: nameHeadingTextStyle,),
-          snapshot.data[index].toString().contains('Speaker') ? Text(snapshot.data[index].companyName, style: summarySubheadingTextStyle,) : Container(),
-        ],
+            Text(snapshot.data[index].toString().contains('Speaker') ? snapshot.data[index].name : snapshot.data[index].title, style: nameHeadingTextStyle,),
+            snapshot.data[index].toString().contains('Speaker') ? Text(snapshot.data[index].companyName, style: summarySubheadingTextStyle,) : Container(),
+          ],
+        ),
       ),
     );
   }

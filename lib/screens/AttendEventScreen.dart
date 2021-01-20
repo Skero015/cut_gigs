@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/screens/TagScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class AttendEventScreen extends StatefulWidget {
   @override
@@ -21,6 +24,15 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
   String topicDropdownValue;
   PickedFile _imageFile;
   final ImagePicker _picker = ImagePicker();
+
+  EventNotifier eventNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+
+    eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +153,7 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                     ),
                     CircleAvatar(
                       radius: 165.0,
-                      backgroundColor: Colors.lightBlueAccent.shade50,
+                      backgroundColor: Colors.lightBlueAccent.withOpacity(0.5),
                       backgroundImage: _isEnabled //if isEnabled is equal to true, enable set profile picture, if false set disable button and set default profile picture
                           ? _imageFile == null
                               ? AssetImage('images/defaultprofilepicture.jpg')
@@ -301,9 +313,9 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                         child: RaisedButton(
                           //Button comes with its own onTap or onPressed method .... I do not normally decorate buttons with Ink and Container widgets, I had to find a way to give it gradient colors since RaisedButton does not come with the decoration: field
                           onPressed: () {
-                            //In this onPressed of the RaisedButton we will not need the setState method because
-                            // we are not changing the state of the UI.
-                            //We will only be this button to navigate to authenticate the user and move to a different screen
+
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => TagScreen()));
+
                           }, //Ink widget here, is a child of the Button, learning more about it however...
                           child: Ink(
                             //The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
