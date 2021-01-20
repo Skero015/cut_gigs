@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-Widget eventCategoryCard(){
+Widget eventCategoryCard(String image, String name){
   return Material(
     elevation: 5.0,
     borderRadius: BorderRadius.all(Radius.circular(15.0),),
@@ -23,7 +23,7 @@ Widget eventCategoryCard(){
                 fit: BoxFit.cover,
                 height: 50.0,
               ),
-              Center(child: Text('Sports',style: categoryCardTextStyle)),
+              Center(child: Text(name,style: categoryCardTextStyle)),
             ],
           ),
         ),

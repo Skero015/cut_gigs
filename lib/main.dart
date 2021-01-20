@@ -1,6 +1,9 @@
+import 'package:cut_gigs/config/preferences.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,10 +14,16 @@ import 'package:responsive_framework/responsive_wrapper.dart';
 void main() async => {
 
   WidgetsFlutterBinding.ensureInitialized(),
-  await Firebase.initializeApp(),
+
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp,DeviceOrientation.portraitDown])
-      .then((_) => runApp(MyApp()),
+      .then((_) => runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => EventNotifier(),
+        ),
+      ],
+      child: MyApp())),
   )
 };
 
@@ -26,6 +35,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+
+      await Firebase.initializeApp().then((value) {
+
+        final FirebaseAuth auth = FirebaseAuth.instance;
+        if(auth.currentUser != null)
+          Preferences.uid = auth.currentUser.uid;
+      });
+    });
 
     return MaterialApp(
       builder: (context, widget) => ResponsiveWrapper.builder(
@@ -45,7 +63,7 @@ class MyApp extends StatelessWidget {
             ResponsiveBreakpoint.autoScale(2460, name: "4K",scaleFactor: 1.90),
           ],
           background: Image(
-            image: AssetImage('images/EditSpeakerAdminScreen.png'),
+            image: AssetImage('images/MainBackground.png'),
             fit: BoxFit.cover,
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
@@ -57,7 +75,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(),
+      home: CustomNavBar(),
     );
   }
 }
