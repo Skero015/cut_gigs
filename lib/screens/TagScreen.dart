@@ -2,6 +2,7 @@ import 'package:cut_gigs/config/styleguide.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'EventDetailsScreen.dart';
 
@@ -14,6 +15,8 @@ class TagScreen extends StatefulWidget {
 
 class _TagScreenState extends State<TagScreen> {
 
+  String qrCodeTag = 'Ticket No: 123454 Belongs to Mr KK Mei seat no G88' ;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +25,7 @@ class _TagScreenState extends State<TagScreen> {
       body: Stack(
         children: <Widget>[
           Image(
-            image: AssetImage('images/EditSpeakerAdminScreen.png'),
+            image: AssetImage('images/MainBackground.png'),
             fit: BoxFit.cover,
             height: MediaQuery.of(context).size.height,// gives you height of the device
             width: MediaQuery.of(context).size.width,// gives you width of the device
@@ -149,11 +152,15 @@ class _TagScreenState extends State<TagScreen> {
                                   padding: const EdgeInsets.only(left: 40),
                                   child: Text('CUT Sports Grounds',style: categoryCardTextStyle,textAlign: TextAlign.start,),
                                 ),
-                                SizedBox(height: 50,),
+                                SizedBox(height: 25,),
+                                Divider(
+                                  height: 20,
+                                thickness: 3,),
+                                SizedBox(height: 25,),
                                 Center(
-                                  child: Image(
-                                    image: AssetImage('images/qr_code.png'),
-                                    height: 320,
+                                  child: QrImage(
+                                    data: qrCodeTag,
+                                    size: 350.0,
                                   ),
                                 ),
                                 SizedBox(height: 50,),
