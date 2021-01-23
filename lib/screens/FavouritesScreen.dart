@@ -99,7 +99,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                           itemBuilder: (BuildContext context, int index){
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                              child: eventCategoryCard(snapshot.data[index].image, snapshot.data[index].name),
+                              child: eventCategoryCard( snapshot.data[index].image, snapshot.data[index].name, context),
                             );
                           },
                         ) : Container();

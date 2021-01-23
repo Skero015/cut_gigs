@@ -9,6 +9,7 @@ import 'package:cut_gigs/reusables/SearchWidget.dart';
 import 'package:cut_gigs/reusables/SideDrawer.dart';
 import 'package:cut_gigs/reusables/UpcomingEventsCard.dart';
 import 'package:cut_gigs/services/database_services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       eventNotifier = Provider.of<EventNotifier>(context, listen: false);
     });
+    Firebase.initializeApp();
     getCategoryFuture = getCategories();
 
     _tabController = new TabController(length: 2, vsync: this);
@@ -108,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             itemBuilder: (BuildContext context, int index){
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                                child: eventCategoryCard(snapshot.data[index].image, snapshot.data[index].name),
+                                child: eventCategoryCard(snapshot.data[index].image, snapshot.data[index].name, context),
                               );
                             },
                           ) : Container();

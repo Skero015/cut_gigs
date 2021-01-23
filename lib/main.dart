@@ -1,6 +1,7 @@
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
+import 'package:cut_gigs/screens/FilterScreen.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: CustomNavBar(),
+      //home: FilterScreen("sports"),
     );
   }
 }
