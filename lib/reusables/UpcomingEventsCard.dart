@@ -66,6 +66,7 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
 
         }else{
 
+          print('moving to eventDetails');
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
         }
 
@@ -161,7 +162,7 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
 
                                     await DatabaseService(uid: Preferences.uid).updateEventFavourites(isFavImgClicked, widget.snapshot.data[widget.index].eventID).whenComplete(() async{
 
-                                      await getEvents(widget.context, widget.eventNotifier);
+                                      await getEvents(widget.context, widget.eventNotifier, "Upcoming");
                                     });
 
                                     print(isFavImgClicked);

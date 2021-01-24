@@ -1,6 +1,8 @@
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SideDrawer extends StatefulWidget {
   @override
@@ -31,9 +33,9 @@ class _SideDrawerState extends State<SideDrawer> {
                     Padding(
                       padding: const EdgeInsets.only(top: 85.0, left: 50),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          Text('Hello, Kabelo !', style: pageHeadingTextStyle,),
-                          SizedBox(width: 110,),
+                          Text('Hello, \n' + Preferences.currentUser.displayName + "!", style: pageHeadingTextStyle,),
                           GestureDetector(
                             child: Image(
                               image: AssetImage('images/drawer_icons/CancelIcon.png'),
@@ -45,18 +47,19 @@ class _SideDrawerState extends State<SideDrawer> {
                               Navigator.of(context).pop();
                             },
                           ),
+                          SizedBox(width: 5,)
                         ],
                       ),
                     ),
                     SizedBox(height: 10,),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 50),
-                      child: Text('kabelomei@gmail.com', style: sdEmailTextStyle,),
+                      child: Text(Preferences.currentUser.email, style: sdEmailTextStyle,),
                     ),
                     SizedBox(height: 15,),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 50),
-                      child: Text('0604485692', style: sdNumberTextStyle,),
+                      child: Text(Preferences.currentUser.phoneNumber, style: sdNumberTextStyle,),
                     ),
                     SizedBox(height: 120,),
                     Padding(
@@ -66,22 +69,22 @@ class _SideDrawerState extends State<SideDrawer> {
                     SizedBox(height: 16,),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                     SizedBox(height: 53,),
-                    Padding(
+                    /*Padding(
                       padding: const EdgeInsets.only(left: 30),
                       child: SideDrawerCategory('Calendar','images/DateIcon.png'),
                     ),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
-                    SizedBox(height: 52,),
+                    SizedBox(height: 52,),*/
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
                       child: SideDrawerCategory('Help','images/drawer_icons/HelpIcon.png'),
                     ),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                     SizedBox(height: 53,),
-                    Padding(
+                    /*Padding(
                       padding: const EdgeInsets.only(left: 30),
                       child: SideDrawerCategory('Host Login','images/drawer_icons/LoginIcon.png'),
-                    ),
+                    ),*/
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
 
                   ],
@@ -104,7 +107,7 @@ class SideDrawerCategory extends StatelessWidget {
     return ListTile(
       title: new Text(title, style: sdHeadingTextStyle,),
       leading: Image(image: AssetImage(imagePath.trim()), height: 35, width: 35,),
-      onTap: (){
+      onTap: () async{
         Navigator.of(context).pop();
         switch(title) {
           case 'Edit Profile':
@@ -116,8 +119,12 @@ class SideDrawerCategory extends StatelessWidget {
                 builder: (BuildContext context) => new EditProfileScreen()));*/
             break;
           case "Help":
-          /*Navigator.of(context).push(new MaterialPageRoute(
-                builder: (BuildContext context) => new EditProfileScreen()));*/
+            const url = 'https://www.cut.ac.za/contact-us';
+            if (await canLaunch(url)) {
+            await launch(url);
+            } else {
+              throw 'Could not launch $url';
+            }
             break;
           case "Host Login":
           /*Navigator.of(context).push(new MaterialPageRoute(

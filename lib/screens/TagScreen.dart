@@ -1,8 +1,13 @@
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
+import 'package:cut_gigs/screens/MyEventsScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:intl/intl.dart';
 import 'EventDetailsScreen.dart';
 
 
@@ -13,6 +18,17 @@ class TagScreen extends StatefulWidget {
 }
 
 class _TagScreenState extends State<TagScreen> {
+
+  EventNotifier eventNotifier;
+  DateTime eventDate;
+
+  @override
+  void initState() {
+    super.initState();
+
+    eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+    eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +70,7 @@ class _TagScreenState extends State<TagScreen> {
                             ],
                           ),
                           onTap: () {
-                            Navigator.of(context).pop();
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomNavBar(index: 0,)));
                           },
                         ),
 
@@ -113,7 +129,7 @@ class _TagScreenState extends State<TagScreen> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(top: 30.0, bottom: 40, left: 40),
-                                  child: Text('Varsity Cup: CUT vs UOFS',style: pageSubHeadingTextStyle,textAlign: TextAlign.start,),
+                                  child: Text(eventNotifier.currentEvent.title,style: pageSubHeadingTextStyle,textAlign: TextAlign.start,),
                                 ),
 
                                 Row(
@@ -133,10 +149,10 @@ class _TagScreenState extends State<TagScreen> {
                                   children: <Widget>[
                                     Padding(
                                       padding: const EdgeInsets.only(left: 40),
-                                      child: Text('17 August 2020',style: categoryCardTextStyle),
+                                      child: Text(DateFormat.yMMMd('en-US').format(eventDate),style: categoryCardTextStyle),
                                     ),
                                     SizedBox(width: 110,),
-                                    Text('15:00',style: categoryCardTextStyle),
+                                    Text(DateFormat('hh:mm a').format(eventDate),style: categoryCardTextStyle),
                                   ],
                                 ),
 
@@ -147,13 +163,15 @@ class _TagScreenState extends State<TagScreen> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 40),
-                                  child: Text('CUT Sports Grounds',style: categoryCardTextStyle,textAlign: TextAlign.start,),
+                                  child: Text(eventNotifier.currentEvent.venue,style: categoryCardTextStyle,textAlign: TextAlign.start,),
                                 ),
                                 SizedBox(height: 50,),
                                 Center(
-                                  child: Image(
-                                    image: AssetImage('images/qr_code.png'),
-                                    height: 320,
+                                  child: QrImage(
+                                      data: eventNotifier.currentEvent.tagID,
+                                    version: 2,
+                                    size: 320,
+                                    embeddedImage: AssetImage('images/AppBar.png'),
                                   ),
                                 ),
                                 SizedBox(height: 50,),

@@ -293,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
           //retrieve data from database using async
           Navigator.of(context).pop();
           Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => new CustomNavBar()));
+              builder: (BuildContext context) => new CustomNavBar(index: 1,)));
 
           //dispose();
           //deactivate();
