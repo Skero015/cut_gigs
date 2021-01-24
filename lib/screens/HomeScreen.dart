@@ -9,10 +9,13 @@ import 'package:cut_gigs/reusables/SearchWidget.dart';
 import 'package:cut_gigs/reusables/SideDrawer.dart';
 import 'package:cut_gigs/reusables/UpcomingEventsCard.dart';
 import 'package:cut_gigs/services/database_services.dart';
+import 'package:cut_gigs/services/notification_services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -31,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   TabController _tabController;
 
   Future getCategoryFuture;
+  Future getEventsFuture;
 
   DateTime date, eventDate;
 
@@ -42,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       eventNotifier = Provider.of<EventNotifier>(context, listen: false);
     });
+    Firebase.initializeApp();
     getCategoryFuture = getCategories();
 
     _tabController = new TabController(length: 2, vsync: this);
@@ -108,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             itemBuilder: (BuildContext context, int index){
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                                child: eventCategoryCard(snapshot.data[index].image, snapshot.data[index].name),
+                                child: eventCategoryCard(snapshot.data[index].image, snapshot.data[index].name, context),
                               );
                             },
                           ) : Container();
@@ -121,10 +126,34 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       padding: const EdgeInsets.only(left: 40.0),
                       child: Text('Featured Events',style: boldHeadingTextStyle),
                     ),
-                    /*Padding(
+                    Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 18.0),
-                      child: FeaturedEventsCard(snapshot: snapshot, index: index,),
-                    ),*/ //works like a carousel
+                      child: StreamBuilder(
+                        stream: Stream.fromFuture(getEvents(context, eventNotifier, "Featured Events")),
+                        builder: (context, snapshot) {
+                          print("snapshot for featured events is now: " + snapshot.connectionState.toString());
+                          print(snapshot.hasData);
+                          return snapshot.connectionState == ConnectionState.done && snapshot.data != null ?
+                          SizedBox(
+                            height: 370,
+                            width: double.infinity,
+                            child: Swiper(
+                                itemBuilder: (BuildContext context, int index){
+                                  print("event is featured: " + snapshot.data[index].isPriority.toString());
+                                  return snapshot.data[index].isPriority ? FeaturedEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier,) : Container();
+                                },
+                              itemCount: snapshot.data.length,
+                              pagination: null,
+                              control: null,
+                              autoplay: snapshot.data.length > 1 ? true : false,
+                              layout: SwiperLayout.STACK,
+                              itemWidth: MediaQuery.of(context).size.width,
+                              duration: 800,
+                            ),
+                          ) : Container();
+                        }
+                      ),
+                    ),//works like a carousel
                     SizedBox(height: 5.0,),
                     TabBar(
                       indicatorColor: Colors.yellow[800],
@@ -144,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),
                       child: StreamBuilder(
                         initialData: [],
-                        stream: Stream.fromFuture(getEvents(context, eventNotifier)),
+                        stream: Stream.fromFuture(getEvents(context, eventNotifier, "Upcoming Events")),
                         builder: (context, snapshot) {
                           return snapshot.connectionState == ConnectionState.done && snapshot.data != null ?
                           SizedBox(
@@ -193,4 +222,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
+
+  Future<void> prepareNotification() async {
+
+    await PushService.callOnFcmApiSendPushNotifications(title: "Sit tight.",body: "Your bev is being prepared for delivery.");
+
+  }
+
+  Future<void> showNotification(String title, String body,BuildContext context) async{
+
+    await PushService().localNotification(title, body, context);
+
+  }
+}
+
+Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+
+  _HomeScreenState().prepareNotification();
+
+  if (message.containsKey('data')) {
+    // Handle data message
+    final dynamic data = message['data'];
+  }
+
+  if (message.containsKey('notification')) {
+    // Handle notification message
+    final dynamic notification = message['notification'];
+  }
+
+// Or do other work.
 }

@@ -99,7 +99,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                           itemBuilder: (BuildContext context, int index){
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                              child: eventCategoryCard(snapshot.data[index].image, snapshot.data[index].name),
+                              child: eventCategoryCard(snapshot.data[index].image, snapshot.data[index].name, context),
                             );
                           },
                         ) : Container();
@@ -113,7 +113,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: StreamBuilder(
                     initialData: [],
-                    stream: Stream.fromFuture(getEvents(context, eventNotifier)),
+                    stream: Stream.fromFuture(getEvents(context, eventNotifier, "Favourite Events")),
                     builder: (context, snapshot) {
                       return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
                         primary: true,

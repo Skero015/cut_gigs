@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
 
         final FirebaseAuth auth = FirebaseAuth.instance;
         if(auth.currentUser != null)
+          Preferences.currentUser = auth.currentUser;
           Preferences.uid = auth.currentUser.uid;
       });
     });
@@ -75,7 +76,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: CustomNavBar(),
+      home: CustomNavBar(index: 1,),
     );
   }
 }

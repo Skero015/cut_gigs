@@ -6,7 +6,9 @@ import 'package:cut_gigs/models/Organiser.dart';
 import 'package:cut_gigs/models/Speaker.dart';
 import 'package:cut_gigs/models/Sponsor.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/reusables/MapContainerWidget.dart';
 import 'package:cut_gigs/screens/AttendEventScreen.dart';
+import 'package:cut_gigs/screens/PdfScreen.dart';
 import 'package:cut_gigs/screens/SpeakerDetailsScreens.dart';
 import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +17,9 @@ import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class EventDetailsScreen extends StatefulWidget {
   @override
@@ -39,6 +44,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Future getOrganiserFuture;
   Future getMealFuture;
 
+  Future<void> launchUrl;
+
+  PDFDocument scheduleDoc;
+  final int scheduleFlag = 1;
+  PDFDocument faqDoc;
+  final int faqFlag = 2;
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +69,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       "Map" : false,
       "Event Meal Plan" : false,
     };
+
+    getFile(eventNotifier.currentEvent.schedule,scheduleFlag);
+    getFile(eventNotifier.currentEvent.faqs,faqFlag);
 
     eventNotifier.currentEvent.isFavourite == true ? isFavImgClicked = true : isFavImgClicked = false;
 
@@ -85,13 +101,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 snap: false,
                 stretch: true,
                 elevation: 0,
-                expandedHeight: 300,
+                expandedHeight: 280,
                 flexibleSpace: FlexibleSpaceBar(
                   background: ClipRRect(
                     borderRadius: BorderRadius.vertical(bottom: Radius.circular(50.0),),
                     child: CachedNetworkImage(
                       imageUrl: eventNotifier.currentEvent.image,
-                      height: 300,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -160,8 +175,79 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         ),
                       ) : Container(),
                       dropdownMenuCard('Event Schedule', 2),
+                      dropdownClickedMap.values.elementAt(2) == true
+                          ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'To open the event schedule',
+                            style: summarySubheadingTextStyle,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          RaisedButton(
+                            onPressed: () =>
+                            {
+
+                              Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(scheduleDoc, _isLoading, 'Event Schedule'))),
+
+                            },
+                            child: Text(' Click Here ',
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white)),
+                            color: Colors.yellow[800],
+                          )
+                        ],
+                      ) : Container(),
                       dropdownMenuCard('Survey', 3),
+                      dropdownClickedMap.values.elementAt(3) == true
+                          ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'To open the event survey',
+                            style: summarySubheadingTextStyle,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          RaisedButton(
+                            onPressed: () =>
+                            {
+                              launchUrl = SurveyURL('https://forms.gle/1MvTaGJYRAw33ZYS6')
+                            },
+                            child: Text(' Click Here ',
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white)),
+                            color: Colors.yellow[800],
+                          )
+                        ],
+                      ) : Container(),
                       dropdownMenuCard('Event FAQs', 4),
+                      dropdownClickedMap.values.elementAt(4) == true
+                          ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'To open the event FAQs',
+                            style: summarySubheadingTextStyle,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          RaisedButton(
+                            onPressed: () =>
+                            {
+                              Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(faqDoc, _isLoading, 'Event FAQs'))),
+                            },
+                            child: Text(' Click Here ',
+                                style: GoogleFonts.poppins(
+                                    color: Colors.white)),
+                            color: Colors.yellow[800],
+                          )
+                        ],
+                      ) : Container(),
                       dropdownMenuCard('Sponsors', 5),
                       dropdownClickedMap.values.elementAt(5) == true ? SizedBox(
                         height: 180.0,
@@ -182,6 +268,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       ) : Container(),
                       dropdownMenuCard('Event Organizers', 6),
                       dropdownMenuCard('Map', 7),
+                      dropdownClickedMap.values.elementAt(7) == true ? MapContainer() : Container(),
                       dropdownMenuCard('Event Meal Plan', 8),
                     ],
                   ),
@@ -326,7 +413,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(50.0),),
                   child: CachedNetworkImage(
-                    memCacheHeight: 1000,
                     imageUrl: snapshot.data[index].image,
                     height: 100,
                     fit: BoxFit.cover,
@@ -341,4 +427,29 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       ),
     );
   }
+
+  Future<void> SurveyURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void getFile(String url, int v) async {
+    PDFDocument docs;
+    if(v == 1)
+    {
+      scheduleDoc = await PDFDocument.fromURL(url,);
+    }
+    else if (v == 2)
+    {
+      faqDoc = await PDFDocument.fromURL(url,);
+    }
+    //downloadedUrl = url;
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
 }
