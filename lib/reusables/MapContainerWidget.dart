@@ -1,8 +1,10 @@
+import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/screens/MapScreen.dart';
 import "package:latlong/latlong.dart" as latLng;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:provider/provider.dart';
 
 class MapContainer extends StatefulWidget {
   @override
@@ -10,6 +12,16 @@ class MapContainer extends StatefulWidget {
 }
 
 class _MapContainerState extends State<MapContainer> {
+
+  EventNotifier eventNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+
+    eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,9 +30,9 @@ class _MapContainerState extends State<MapContainer> {
       child: FlutterMap(
           options: MapOptions(
             onTap: (latLng.LatLng coordinates){
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => MapScreen(latLng.LatLng(-29.120665401122718, 26.21291623068287))));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => MapScreen()));
             },
-            center: latLng.LatLng(-29.120665401122718, 26.21291623068287),
+            center: latLng.LatLng(double.parse(eventNotifier.currentEvent.locationLatitude), double.parse(eventNotifier.currentEvent.locationLongitude)),
             zoom: 17.0,
           ),
         layers: [
@@ -36,7 +48,7 @@ class _MapContainerState extends State<MapContainer> {
               new Marker(
                 width: 130.0,
                 height: 130.0,
-                point: latLng.LatLng(-29.120665401122718, 26.21291623068287),
+                point: latLng.LatLng(double.parse(eventNotifier.currentEvent.locationLatitude), double.parse(eventNotifier.currentEvent.locationLongitude)),
                 builder: (ctx) =>
                 new Container(
                   child: Icon(Icons.location_on, color: Colors.blue, size: 60,),

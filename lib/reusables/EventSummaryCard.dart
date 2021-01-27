@@ -41,7 +41,7 @@ class _EventSummaryCardState extends State<EventSummaryCard> {
   @override
   Widget build(BuildContext context) {
 
-    eventDate = DateTime.fromMillisecondsSinceEpoch(widget.snapshot.data[widget.index].date);
+    eventDate = DateTime.fromMillisecondsSinceEpoch(widget.snapshot.data[widget.index].date.millisecondsSinceEpoch);
 
     return Container(
       child: GestureDetector(

@@ -98,10 +98,17 @@ class DatabaseService {
 
     try{
       speakerStorageRef = speakerStorageRef.child(eventNotifier.currentEvent.eventID + "/" + uid);
-      await speakerStorageRef.putFile(imageFile).whenComplete(() async{
 
-        downloadUrl = await speakerStorageRef.getDownloadURL();
-      });
+      if(imageFile != null){
+
+        await speakerStorageRef.putFile(imageFile).whenComplete(() async{
+
+          downloadUrl = await speakerStorageRef.getDownloadURL();
+        });
+      }else{
+        downloadUrl = "";
+      }
+
 
 
     }catch(e){
@@ -122,12 +129,12 @@ class DatabaseService {
         'companyName' : companyName,
         'image' : image,
         'name' : FirebaseAuth.instance.currentUser.displayName,
-        'position' : "",
+        'position' : position,
         'speakerID' : uid,
         'topic' : topic,
         'userID' : uid,
         'isApproved' : false,
-        'tagID' : "",
+        'tagID' : tagID,
       }).whenComplete(() async{
         await tagCollection.doc(tagID).set({
           'attendeeID': uid,

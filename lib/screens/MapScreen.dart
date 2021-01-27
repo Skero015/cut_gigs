@@ -1,18 +1,28 @@
+import 'package:cut_gigs/notifiers/event_notifier.dart';
 import "package:latlong/latlong.dart" as latLng;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
 
-  final latLng.LatLng coordinates;
-
-  MapScreen(this.coordinates);
+  MapScreen();
   @override
   _MapScreenState createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
+
+  EventNotifier eventNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+
+    eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +36,7 @@ class _MapScreenState extends State<MapScreen> {
           width: MediaQuery.of(context).size.width,
           child: FlutterMap(
             options: MapOptions(
-              center: widget.coordinates,
+              center: latLng.LatLng(double.parse(eventNotifier.currentEvent.locationLatitude), double.parse(eventNotifier.currentEvent.locationLongitude)),
               zoom: 17.0,
             ),
             layers: [
@@ -42,7 +52,7 @@ class _MapScreenState extends State<MapScreen> {
                   new Marker(
                     width: 100.0,
                     height: 100.0,
-                    point: widget.coordinates,
+                    point: latLng.LatLng(double.parse(eventNotifier.currentEvent.locationLatitude), double.parse(eventNotifier.currentEvent.locationLongitude)),
                     builder: (ctx) =>
                     new Container(
                       child: Icon(Icons.location_on, color: Colors.blue,size: 60,),

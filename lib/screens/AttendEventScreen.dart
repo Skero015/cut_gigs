@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/config/validators.dart';
+import 'package:cut_gigs/models/Event.dart';
 import 'package:cut_gigs/models/Tag.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
@@ -360,18 +361,28 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                                     SystemChannels.textInput.invokeMethod('TextInput.hide');
                                     await _changeBusyVisible();
 
+                                    Preferences.tagID = generateTagID();
+
+                                    await getTagID().then((value) {
+
+                                      while(value.any((tag) => tag.tagID == Preferences.tagID))
+                                      {
+                                        Preferences.tagID = generateTagID();
+                                      }
+                                    });
+
                                     if(attendee == 'Speaker'){
 
-                                      await DatabaseService(uid: Preferences.uid).uploadSpeakerImage(eventNotifier, Preferences.uid, _imageFile != null ? File(_imageFile.path) : File('images/defaultprofilepicture.jpg')).then((value) async{
+                                      await DatabaseService(uid: Preferences.uid).uploadSpeakerImage(eventNotifier, Preferences.uid, _imageFile != null ? File(_imageFile.path) : null).then((value) async{
 
                                         print('url $value');
-                                        await DatabaseService(uid: Preferences.uid).updateEventSpeaker(eventNotifier, _companyName.text.trim(), value, topicDropdownValue, _position.text.trim(), "").whenComplete(() async{
+                                        await DatabaseService(uid: Preferences.uid).updateEventSpeaker(eventNotifier, _companyName.text.trim(), value, topicDropdownValue, _position.text.trim(), Preferences.tagID).whenComplete(() async{
 
-                                          await sendEmail().whenComplete(() {
+                                          await sendEmail().whenComplete(() async {
 
                                             _changeBusyVisible();
 
-                                            showDialog(context: context,
+                                            await showDialog(context: context,
                                                 builder: (BuildContext context){
                                                   return MainDialogBox(
                                                     title: "Request Sent",
@@ -380,26 +391,26 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                                                     buttonText: "Ok",
                                                   );
                                                 }
-                                            ).whenComplete(() {
-                                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomNavBar(index: 0,)));
+                                            ).whenComplete(() async {
+                                              await DatabaseService(uid: Preferences.uid).updateEventAttendee(eventNotifier, Preferences.tagID).whenComplete(() async{
+
+                                                await getEvents(context, eventNotifier, "AttendEvent").whenComplete(() {
+                                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TagScreen()));
+                                                });
+
+                                                _changeBusyVisible();
+                                              });
                                             });
                                           });
                                         });
                                       });
 
                                     }else{
-                                      Preferences.tagID = generateTagID();
+                                      await DatabaseService(uid: Preferences.uid).updateEventAttendee(eventNotifier, Preferences.tagID).whenComplete(() async{
 
-                                      await getTagID().then((value) {
-
-                                        while(value.any((tag) => tag.tagID == Preferences.tagID))
-                                        {
-                                          Preferences.tagID = generateTagID();
-                                        }
-                                      });
-                                      await DatabaseService(uid: Preferences.uid).updateEventAttendee(eventNotifier, Preferences.tagID).whenComplete(() {
-
-                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => TagScreen()));
+                                        await getEvents(context, eventNotifier, "AttendEvent").whenComplete(() {
+                                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => TagScreen()));
+                                        });
 
                                         _changeBusyVisible();
                                       });

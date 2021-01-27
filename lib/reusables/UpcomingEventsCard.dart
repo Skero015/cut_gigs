@@ -44,7 +44,7 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
   @override
   Widget build(BuildContext context) {
 
-    eventDate = DateTime.fromMillisecondsSinceEpoch(widget.snapshot.data[widget.index].date);
+    eventDate = DateTime.fromMillisecondsSinceEpoch(widget.snapshot.data[widget.index].date.millisecondsSinceEpoch);
     return GestureDetector(
       onTap: (){
         print(widget.snapshot.data[widget.index].password.toString());

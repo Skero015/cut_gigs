@@ -12,19 +12,22 @@ class Event {
   String eventID;
   String title;
   String about;
-  int date;
+  Timestamp date;
+  Timestamp endDate;
   String category;
   String faqs;
   String schedule;
+  String survey;
   String hostID;
   String image;
   String institutionID;
   String location;
   String locationLatitude;
   String locationLongitude;
+  String mapPDF;
+  String mealPDF;
   String venue;
   String password;
-  Map mapDetails;
   bool isPriority;
   bool isPrivate;
   bool isFavourite;
@@ -43,9 +46,10 @@ class Event {
       this.location,
       this.locationLatitude,
       this.locationLongitude,
+      this.mapPDF,
+      this.mealPDF,
       this.venue,
       this.password,
-      this.mapDetails,
       this.isPriority,
       this.isPrivate,
       this.isFavourite);
@@ -54,19 +58,22 @@ class Event {
     this.eventID = data['eventID'];
     this.title = data['title'];
     this.date = data['date'];
+    this.endDate = data['endDate'];
     this.about = data['about'];
     this.category = data['category'];
     this.faqs = data['faqs'];
     this.schedule = data['schedule'];
+    this.survey = data['survey'];
     this.hostID = data['hostID'];
     this.image = data['image'];
     this.institutionID = data['institutionID'];
+    this.venue = data['venue'];
     this.location = data['location'];
     this.locationLatitude = data['locationLatitude'];
     this.locationLongitude = data['locationLongitude'];
-    this.venue = data['venue'];
+    this.mapPDF = data['mapPDF'];
+    this.mealPDF = data['mealPlan'];
     this.password = data['password'];
-    this.mapDetails = data['mapDetails'];
     this.isPriority = data['isPriority'];
     this.isPrivate = data['isPrivate'];
     this.isFavourite = data['isFavourite'];
@@ -78,9 +85,11 @@ class Event {
       'title': title,
       'about': about,
       'date' : date,
+      'endDate' : endDate,
       'category': category,
       'faqs': faqs,
       'schedule': schedule,
+      'survey' : survey,
       'hostID': hostID,
       'image': image,
       'institutionID': institutionID,
@@ -88,7 +97,8 @@ class Event {
       'location' : location,
       'locationLongitude': locationLongitude,
       'locationLatitude': locationLatitude,
-      'mapDetails': mapDetails,
+      'mapPDF' : mapPDF,
+      'mealPlan' : mealPDF,
       'password': password,
       'isPriority': isPriority,
       'isPrivate': isPrivate,
@@ -98,9 +108,9 @@ class Event {
 }
 
 Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String widgetName) async{
-  Firebase.initializeApp();
   QuerySnapshot snapshots;
   DocumentSnapshot docSnapshot;
+  Preferences.featuredEventsCount = 0;
 
   List<Event> _eventList = [];
   print("context " + context.toString());
@@ -137,14 +147,24 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
 
         snapshots.docs.forEach((element) {
           print(element.id);
-          print(element.data());
-          print(element.toString());
           Event event = Event.fromMap(element.data());
           print(event.eventID);
-          event.isFavourite = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).isFavourite;
-          event.tagID = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).tagID;
-          _eventList.add(event);
+          print("the eventID retrieved is: " + event.eventID);
+          print("the title retrieved is: " + event.title);
 
+          value.forEach((elmnt) {
+            if(elmnt.eventID == event.eventID){
+              event.isFavourite = elmnt.isFavourite;
+              event.tagID = elmnt.tagID;
+            }
+            print(elmnt.tagID);
+          });
+
+          if(event.isPriority){
+            Preferences.featuredEventsCount++;
+          }
+          _eventList.add(event);
+          print(event.mapPDF != null ? event.mapPDF : "event mapPDF null");
           print(_eventList.length);
         });
         print('docs got');
@@ -155,7 +175,7 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
   }catch(e){
     print(e);
   }
-
+print(Preferences.featuredEventsCount);
   // ignore: unnecessary_statements
   widgetName.contains('Upcoming') ? eventNotifier.eventList = _eventList : null;
   return _eventList;

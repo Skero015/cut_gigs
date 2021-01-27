@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/screens/WebViewScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class SideDrawer extends StatefulWidget {
   @override
@@ -10,6 +14,12 @@ class SideDrawer extends StatefulWidget {
 }
 
 class _SideDrawerState extends State<SideDrawer> {
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -57,10 +67,10 @@ class _SideDrawerState extends State<SideDrawer> {
                       child: Text(Preferences.currentUser.email, style: sdEmailTextStyle,),
                     ),
                     SizedBox(height: 15,),
-                    Padding(
+                    /*Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 50),
-                      child: Text(Preferences.currentUser.phoneNumber, style: sdNumberTextStyle,),
-                    ),
+                      child: Text('0762630001', style: sdNumberTextStyle,),
+                    ),*/
                     SizedBox(height: 120,),
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
@@ -85,7 +95,7 @@ class _SideDrawerState extends State<SideDrawer> {
                       padding: const EdgeInsets.only(left: 30),
                       child: SideDrawerCategory('Host Login','images/drawer_icons/LoginIcon.png'),
                     ),*/
-                    Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
+                    //Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
 
                   ],
                 ),
@@ -120,11 +130,7 @@ class SideDrawerCategory extends StatelessWidget {
             break;
           case "Help":
             const url = 'https://www.cut.ac.za/contact-us';
-            if (await canLaunch(url)) {
-            await launch(url);
-            } else {
-              throw 'Could not launch $url';
-            }
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => WebviewScreen(url)));
             break;
           case "Host Login":
           /*Navigator.of(context).push(new MaterialPageRoute(

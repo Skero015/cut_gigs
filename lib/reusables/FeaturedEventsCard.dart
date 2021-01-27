@@ -34,7 +34,7 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
   void initState() {
     super.initState();
 
-    eventDate = DateTime.fromMillisecondsSinceEpoch(widget.snapshot.data[widget.index].date);
+    eventDate = DateTime.fromMillisecondsSinceEpoch(widget.snapshot.data[widget.index].date.millisecondsSinceEpoch);
     widget.snapshot.data[widget.index].isFavourite == true ? isFavImgClicked = true : isFavImgClicked = false;
   }
   @override
@@ -116,7 +116,7 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
                               SizedBox(width: 50,),
                               GestureDetector(
                                 child: Image(
-                                  image: isFavImgClicked ? AssetImage('images/LikedEvent.png') : AssetImage('images/FavouriteYellow.png'),
+                                  image: isFavImgClicked ? AssetImage('images/Plain_Yellow_Star.png') : AssetImage('images/FavouriteYellow.png'),
                                   height: 40,
                                   width: 45,
                                   fit: BoxFit.fitHeight,

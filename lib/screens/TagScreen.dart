@@ -4,6 +4,7 @@ import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/MyEventsScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -25,9 +26,13 @@ class _TagScreenState extends State<TagScreen> {
   @override
   void initState() {
     super.initState();
-
+    disableCapture();
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
-    eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date);
+    eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date.millisecondsSinceEpoch);
+  }
+
+  Future<void> disableCapture() async {
+    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
   }
 
   @override

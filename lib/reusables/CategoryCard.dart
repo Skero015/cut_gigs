@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/screens/EventDetailsScreen.dart';
 import 'package:cut_gigs/screens/FilterScreen.dart';
@@ -21,10 +22,10 @@ Widget eventCategoryCard(String image, String filterName, BuildContext context){
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
               children: <Widget>[
-                Image(
-                  image: AssetImage('images/SportsIcon.png'),
-                  fit: BoxFit.cover,
-                  height: 50.0,
+                CachedNetworkImage(
+                    imageUrl: image,
+                    height: 50,
+                    fit: BoxFit.cover
                 ),
                 Center(child: Text(filterName,style: categoryCardTextStyle)),
               ],

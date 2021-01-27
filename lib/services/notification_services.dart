@@ -15,7 +15,30 @@ class PushService {
 
   final FirebaseMessaging fcm = FirebaseMessaging();
 
-  Future initialise() async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  Future initialiseLocalNotifications() async {
+
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    try{
+      // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+      var initializationSettingsAndroid = AndroidInitializationSettings('mipmap/ic_launcher');
+      var initializationSettingsIOS = IOSInitializationSettings(
+        requestSoundPermission: false,
+        requestBadgePermission: false,
+        requestAlertPermission: false,
+        onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+      );
+      var initializationSettings = InitializationSettings(
+          android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+      await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+          onSelectNotification: selectNotification);
+    }catch(e){
+      print(e.toString());
+    }
+  }
+
+  Future initialisePushService() async {
 
     if(Platform.isIOS)
     {
@@ -24,21 +47,6 @@ class PushService {
     }else{
 
     }
-
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
-    var initializationSettingsAndroid = AndroidInitializationSettings('logo');
-    var initializationSettingsIOS = IOSInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-    );
-    var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: selectNotification);
-
 
     fcm.configure(
       //when app is in foreground and we receive a push notification
@@ -83,21 +91,23 @@ class PushService {
     //somewhere should go here
   }
 
-  Future<void> localNotification (String title, String body, BuildContext context) async {
+  Future<void> sendLocalNotification (String title, String body, BuildContext context, FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
 
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  FlutterLocalNotificationsPlugin();
+    try{
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+          'channel id: $title', 'channel name: $title', 'channel description: $body',
+          importance: Importance.max, priority: Priority.high, ticker: 'ticker');
 
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'channel id: $title', 'channel name: $title', 'channel description: $body',
-        importance: Importance.max, priority: Priority.high, ticker: 'ticker');
+      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
 
-    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      var platformChannelSpecifics = NotificationDetails(
+          android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
 
-    var platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
-
-    await flutterLocalNotificationsPlugin.show(
-        0, '$title', '$body', platformChannelSpecifics);
+      print('sending notification: ' + title);
+      await flutterLocalNotificationsPlugin.show(0, '$title', '$body', platformChannelSpecifics, payload: 'Default_Sound',);
+    }catch(e){
+      print(e.toString());
+    }
 
   }
 

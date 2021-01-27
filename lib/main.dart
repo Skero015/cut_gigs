@@ -3,6 +3,7 @@ import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
+import 'package:cut_gigs/services/notification_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ import 'package:responsive_framework/responsive_wrapper.dart';
 void main() async => {
 
   WidgetsFlutterBinding.ensureInitialized(),
-
+  await Firebase.initializeApp(),
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp,DeviceOrientation.portraitDown])
       .then((_) => runApp(MultiProvider(
@@ -38,7 +39,6 @@ class MyApp extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
 
       await Firebase.initializeApp().then((value) {
-
         final FirebaseAuth auth = FirebaseAuth.instance;
         if(auth.currentUser != null)
           Preferences.currentUser = auth.currentUser;
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
             ResponsiveBreakpoint.autoScale(2460, name: "4K",scaleFactor: 1.90),
           ],
           background: Image(
-            image: AssetImage('images/MainBackground.png'),
+            image: AssetImage('images/EditSpeakerAdminScreen.png'),
             fit: BoxFit.cover,
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: CustomNavBar(index: 1,),
+      home: SplashScreen(),
     );
   }
 }
