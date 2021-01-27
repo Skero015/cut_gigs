@@ -1,9 +1,14 @@
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
+import 'package:cut_gigs/screens/MyEventsScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
+import 'package:intl/intl.dart';
 import 'EventDetailsScreen.dart';
 
 
@@ -15,7 +20,20 @@ class TagScreen extends StatefulWidget {
 
 class _TagScreenState extends State<TagScreen> {
 
-  String qrCodeTag = 'Ticket No: 123454 Belongs to Mr KK Mei seat no G88' ;
+  EventNotifier eventNotifier;
+  DateTime eventDate;
+
+  @override
+  void initState() {
+    super.initState();
+    disableCapture();
+    eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+    eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date.millisecondsSinceEpoch);
+  }
+
+  Future<void> disableCapture() async {
+    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +43,7 @@ class _TagScreenState extends State<TagScreen> {
       body: Stack(
         children: <Widget>[
           Image(
-            image: AssetImage('images/MainBackground.png'),
+            image: AssetImage('images/EditSpeakerAdminScreen.png'),
             fit: BoxFit.cover,
             height: MediaQuery.of(context).size.height,// gives you height of the device
             width: MediaQuery.of(context).size.width,// gives you width of the device
@@ -57,7 +75,7 @@ class _TagScreenState extends State<TagScreen> {
                             ],
                           ),
                           onTap: () {
-                            Navigator.of(context).pop();
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomNavBar(index: 0,)));
                           },
                         ),
 
@@ -116,7 +134,7 @@ class _TagScreenState extends State<TagScreen> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(top: 30.0, bottom: 40, left: 40),
-                                  child: Text('Varsity Cup: CUT vs UOFS',style: pageSubHeadingTextStyle,textAlign: TextAlign.start,),
+                                  child: Text(eventNotifier.currentEvent.title,style: pageSubHeadingTextStyle,textAlign: TextAlign.start,),
                                 ),
 
                                 Row(
@@ -136,10 +154,10 @@ class _TagScreenState extends State<TagScreen> {
                                   children: <Widget>[
                                     Padding(
                                       padding: const EdgeInsets.only(left: 40),
-                                      child: Text('17 August 2020',style: categoryCardTextStyle),
+                                      child: Text(DateFormat.yMMMd('en-US').format(eventDate),style: categoryCardTextStyle),
                                     ),
                                     SizedBox(width: 110,),
-                                    Text('15:00',style: categoryCardTextStyle),
+                                    Text(DateFormat('hh:mm a').format(eventDate),style: categoryCardTextStyle),
                                   ],
                                 ),
 
@@ -150,17 +168,15 @@ class _TagScreenState extends State<TagScreen> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 40),
-                                  child: Text('CUT Sports Grounds',style: categoryCardTextStyle,textAlign: TextAlign.start,),
+                                  child: Text(eventNotifier.currentEvent.venue,style: categoryCardTextStyle,textAlign: TextAlign.start,),
                                 ),
-                                SizedBox(height: 25,),
-                                Divider(
-                                  height: 20,
-                                thickness: 3,),
-                                SizedBox(height: 25,),
+                                SizedBox(height: 50,),
                                 Center(
                                   child: QrImage(
-                                    data: qrCodeTag,
-                                    size: 350.0,
+                                      data: eventNotifier.currentEvent.tagID,
+                                    version: 2,
+                                    size: 320,
+                                    embeddedImage: AssetImage('images/AppBar.png'),
                                   ),
                                 ),
                                 SizedBox(height: 50,),

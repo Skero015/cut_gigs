@@ -1,9 +1,11 @@
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/validators.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/reusables/Dialogs.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/auth_screens/RegisterScreen.dart';
 import 'package:cut_gigs/services/auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -290,10 +292,14 @@ class _LoginScreenState extends State<LoginScreen> {
         if (result != null) {
           print('timer for: Wrapper');
 
+          final FirebaseAuth auth = FirebaseAuth.instance;
+          if(auth.currentUser != null)
+            Preferences.currentUser = auth.currentUser;
+          Preferences.uid = auth.currentUser.uid;
           //retrieve data from database using async
           Navigator.of(context).pop();
           Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => new CustomNavBar()));
+              builder: (BuildContext context) => new CustomNavBar(index: 1,)));
 
           //dispose();
           //deactivate();

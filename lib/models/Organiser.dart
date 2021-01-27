@@ -6,11 +6,13 @@ class Organiser{
   String name;
   String image;
   String message;
+  String organiserID;
 
   Organiser.fromMap(Map<String, dynamic> data){
     this.name = data['name'];
     this.image = data['image'];
     this.message = data['message'];
+    this.organiserID = data['organiserID'];
   }
 
   Map<String, dynamic> toMap() {
@@ -18,6 +20,7 @@ class Organiser{
       'name': name,
       'image': image,
       'message' : message,
+      'organiserID' : organiserID,
     };
   }
 }

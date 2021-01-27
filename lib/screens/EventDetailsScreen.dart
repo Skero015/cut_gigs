@@ -6,26 +6,29 @@ import 'package:cut_gigs/models/Organiser.dart';
 import 'package:cut_gigs/models/Speaker.dart';
 import 'package:cut_gigs/models/Sponsor.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/reusables/MapContainerWidget.dart';
 import 'package:cut_gigs/screens/AttendEventScreen.dart';
+import 'package:cut_gigs/screens/PdfScreen.dart';
 import 'package:cut_gigs/screens/SpeakerDetailsScreens.dart';
+import 'package:cut_gigs/screens/WebViewScreen.dart';
 import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
-import 'PdfScreen.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   @override
   _EventDetailsScreenState createState() => _EventDetailsScreenState();
 }
 
-class _EventDetailsScreenState extends State<EventDetailsScreen> {
+class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTickerProviderStateMixin {
 
   final GlobalKey<ScaffoldState> _scaffoldKeyEventDetails = new GlobalKey<ScaffoldState>(debugLabel: '_scaffoldKeyEventDetails');
 
@@ -42,13 +45,18 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Future getSpeakerFuture;
   Future getOrganiserFuture;
   Future getMealFuture;
+
   Future<void> launchUrl;
 
   PDFDocument scheduleDoc;
   final int scheduleFlag = 1;
   PDFDocument faqDoc;
+  PDFDocument mapDoc;
+  PDFDocument mealDoc;
   final int faqFlag = 2;
   bool _isLoading = true;
+
+  TabController _tabController;
 
   @override
   void initState() {
@@ -68,215 +76,307 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       "Event Meal Plan" : false,
     };
 
+    _tabController = new TabController(length: 2, vsync: this);
+/*ClipRRect(
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(50.0),),
+                    child: CachedNetworkImage(
+                      imageUrl: eventNotifier.currentEvent.image,
+                      fit: BoxFit.cover,
+                    ),
+                  ), */
     getFile(eventNotifier.currentEvent.schedule,scheduleFlag);
     getFile(eventNotifier.currentEvent.faqs,faqFlag);
 
     eventNotifier.currentEvent.isFavourite == true ? isFavImgClicked = true : isFavImgClicked = false;
 
     formatter = DateFormat.yMMMd('en_US');
-    eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date);
+    eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date.millisecondsSinceEpoch);
+
+    PDFDocument.fromURL(eventNotifier.currentEvent.mapPDF).then((value) {
+      mapDoc = value;
+    });
+    PDFDocument.fromURL(eventNotifier.currentEvent.mealPDF).then((value) {
+      mealDoc = value;
+    });
 
     getSpeakerFuture = getSpeakers(eventNotifier.currentEvent.eventID);
     getSponsorFuture = getSponsors(eventNotifier.currentEvent.eventID);
     getOrganiserFuture = getOrganisers(eventNotifier.currentEvent.eventID);
-    getMealFuture = getMealPlan(eventNotifier.currentEvent.eventID);
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKeyEventDetails,
       body: Stack(
         children: <Widget>[
-          CustomScrollView(
-            shrinkWrap: true,
-            scrollDirection: Axis.vertical,
-            slivers: <Widget>[
-              SliverAppBar(
-                automaticallyImplyLeading: false,
-                floating: true,
-                pinned: true,
-                snap: false,
-                stretch: true,
-                elevation: 0,
-                expandedHeight: 300,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: ClipRRect(
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(50.0),),
-                    child: CachedNetworkImage(
-                      imageUrl: eventNotifier.currentEvent.image,
-                      height: 300,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              SliverFillRemaining(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+          CachedNetworkImage(
+            imageUrl: eventNotifier.currentEvent.image,
+            fit: BoxFit.cover,
+            width: double.infinity,
+
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 50.0),
+            child: DraggableScrollableSheet(
+              minChildSize:  0.8,
+                initialChildSize: 0.8,
+                builder: (context, controller) {
+                  return SingleChildScrollView(
+                    controller: controller,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(35), topRight: Radius.circular(35)),
+                      ),
+                      child: Column(
                         children: <Widget>[
-                          SizedBox(
-                              width: 500,
-                              child: Text(eventNotifier.currentEvent.title,style: boldHeadingTextStyle,softWrap: true, textAlign: TextAlign.center,)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              SizedBox(
+                                  width: 500,
+                                  child: Text(eventNotifier.currentEvent.title,style: boldHeadingTextStyle,softWrap: true, textAlign: TextAlign.center,)
+                              ),
+                              GestureDetector(
+                                child: Image(
+                                  image: isFavImgClicked ? AssetImage('images/LikedEvent.png') : AssetImage('images/FavouriteYellow.png'),
+                                  height: 40,
+                                  width: 45,
+                                  fit: BoxFit.fitHeight,
+                                ),
+                                onTap: ()async{
+                                  setState(() {
+                                    isFavImgClicked ? isFavImgClicked = false : isFavImgClicked = true;
+                                  });
+
+                                  await DatabaseService(uid: Preferences.uid).updateEventFavourites(isFavImgClicked, eventNotifier.currentEvent.eventID);
+                                },
+                              ),
+                            ],
                           ),
-                          GestureDetector(
-                            child: Image(
-                              image: isFavImgClicked ? AssetImage('images/LikedEvent.png') : AssetImage('images/FavouriteYellow.png'),
-                              height: 40,
-                              width: 45,
-                              fit: BoxFit.fitHeight,
+                          SizedBox(height: 40,),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 25.0),
+                            child: eventSummary('images/DateIcon.png', formatter.format(eventDate), DateFormat('hh:mm a').format(eventDate) + " - "),
+                          ),
+                          SizedBox(height: 20,),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 25.0),
+                            child: eventSummary('images/LocationIcon.png', eventNotifier.currentEvent.venue, eventNotifier.currentEvent.location),
+                          ),
+                          SizedBox(height: 20,),
+                          dropdownMenuCard('About', 0),
+                          dropdownClickedMap.values.elementAt(0) == true ? Padding(
+                            padding: const EdgeInsets.only(left: 25.0),
+                            child: Text(eventNotifier.currentEvent.about, style: summarySubheadingTextStyle,),
+                          ) : Container(),
+                          dropdownMenuCard('Speakers', 1),
+                          dropdownClickedMap.values.elementAt(1) == true ? SizedBox(
+                            height: 180.0,
+                            child: FutureBuilder(
+                                future: getSpeakerFuture,
+                                builder: (context, snapshot) {
+                                  return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
+                                    controller: controller,
+                                    primary: false,
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: snapshot.data.length,
+                                    itemBuilder: (BuildContext context, int index){
+                                      return snapshot.data[index].isApproved ? SponsorSpeakerCard(snapshot, index) : Container();
+                                    },
+                                  ) : Container();
+                                }
                             ),
-                            onTap: ()async{
-                              setState(() {
-                                isFavImgClicked ? isFavImgClicked = false : isFavImgClicked = true;
-                              });
+                          ) : Container(),
+                          dropdownMenuCard('Event Schedule', 2),
+                          dropdownClickedMap.values.elementAt(2) == true
+                              ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'To open the event schedule',
+                                style: summarySubheadingTextStyle,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              RaisedButton(
+                                onPressed: () =>
+                                {
 
-                              await DatabaseService(uid: Preferences.uid).updateEventFavourites(isFavImgClicked, eventNotifier.currentEvent.eventID);
-                            },
-                          ),
+                                  Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(scheduleDoc, _isLoading, 'Event Schedule'))),
+
+                                },
+                                child: Text(' Click Here ',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white)),
+                                color: Colors.yellow[800],
+                              )
+                            ],
+                          ) : Container(),
+                          dropdownMenuCard('Survey', 3),
+                          dropdownClickedMap.values.elementAt(3) == true
+                              ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'To open the event survey',
+                                style: summarySubheadingTextStyle,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              RaisedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => WebviewScreen(eventNotifier.currentEvent.survey)));
+                                },
+                                child: Text(' Click Here ',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white)),
+                                color: Colors.yellow[800],
+                              )
+                            ],
+                          ) : Container(),
+                          dropdownMenuCard('Event FAQs', 4),
+                          dropdownClickedMap.values.elementAt(4) == true
+                              ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'To open the event FAQs',
+                                style: summarySubheadingTextStyle,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              RaisedButton(
+                                onPressed: () =>
+                                {
+                                  Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(faqDoc, _isLoading, 'Event FAQs'))),
+                                },
+                                child: Text(' Click Here ',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white)),
+                                color: Colors.yellow[800],
+                              )
+                            ],
+                          ) : Container(),
+                          dropdownMenuCard('Sponsors', 5),
+                          dropdownClickedMap.values.elementAt(5) == true ? SizedBox(
+                            height: 180.0,
+                            child: FutureBuilder(
+                                future: getSponsorFuture,
+                                builder: (context, snapshot) {
+                                  return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
+                                    controller: controller,
+                                    primary: false,
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: snapshot.data.length,
+                                    itemBuilder: (BuildContext context, int index){
+                                      return SponsorSpeakerCard(snapshot, index);
+                                    },
+                                  ) : Container();
+                                }
+                            ),
+                          ) : Container(),
+                          dropdownMenuCard('Event Organizers', 6),
+                          dropdownClickedMap.values.elementAt(6) == true ? SizedBox(
+                            height: 180.0,
+                            child: FutureBuilder(
+                                future: getOrganiserFuture,
+                                builder: (context, snapshot) {
+                                  return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
+                                    controller: controller,
+                                    primary: false,
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: snapshot.data.length,
+                                    itemBuilder: (BuildContext context, int index){
+                                      return SponsorSpeakerCard(snapshot, index);
+                                    },
+                                  ) : Container();
+                                }
+                            ),
+                          ) : Container(),
+                          dropdownMenuCard('Map', 7),
+                          dropdownClickedMap.values.elementAt(7) == true ? TabBar(
+                            indicatorColor: Colors.yellow[800],
+                            tabs: [
+                              Tab(
+                                icon: Text('Street Map',style: pageSubHeadingTextStyle,textAlign: TextAlign.center,),
+                              ),
+                              Tab(
+                                icon: Text('Campus Map',style: pageSubHeadingTextStyle,textAlign: TextAlign.center,),
+                              )
+                            ],
+                            controller: _tabController,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                          ) : Container(),
+                          dropdownClickedMap.values.elementAt(7) == true ?SizedBox(
+                            height: 400,
+                            width: MediaQuery.of(context).size.width - 50,
+                            child: TabBarView(
+                                controller: _tabController,
+                                children: [
+                                  eventNotifier.currentEvent.locationLongitude.trim().isNotEmpty ? MapContainer() : Container(),
+                                  eventNotifier.currentEvent.mapPDF.trim().isNotEmpty ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'To open the campus map',
+                                        style: summarySubheadingTextStyle,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      RaisedButton(
+                                        onPressed: () {
+
+                                          Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(mapDoc, _isLoading, 'Campus Map')));
+
+                                        },
+                                        child: Text(' Click Here ',
+                                            style: GoogleFonts.poppins(
+                                                color: Colors.white)),
+                                        color: Colors.yellow[800],
+                                      )
+                                    ],
+                                  ) : Text('Map not available', style: summarySubheadingTextStyle,)
+                                ]
+                            ),
+                          ) : Container(),
+                          dropdownMenuCard('Event Meal Plan', 8),
+                          dropdownClickedMap.values.elementAt(8) == true ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'To view the meal plan',
+                                style: summarySubheadingTextStyle,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              RaisedButton(
+                                onPressed: () =>
+                                {
+                                  Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(mealDoc, _isLoading, 'Meal Plan'))),
+                                },
+                                child: Text(' Click Here ',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white)),
+                                color: Colors.yellow[800],
+                              )
+                            ],
+                          ) : Container(),
                         ],
                       ),
-                      SizedBox(height: 40,),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25.0),
-                        child: eventSummary('images/DateIcon.png', formatter.format(eventDate), DateFormat('hh:mm a').format(eventDate) + " - "),
-                      ),
-                      SizedBox(height: 20,),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25.0),
-                        child: eventSummary('images/LocationIcon.png', eventNotifier.currentEvent.venue, eventNotifier.currentEvent.location),
-                      ),
-                      SizedBox(height: 20,),
-                      dropdownMenuCard('About', 0),
-                      dropdownClickedMap.values.elementAt(0) == true ? Padding(
-                        padding: const EdgeInsets.only(left: 25.0),
-                        child: Text(eventNotifier.currentEvent.about, style: summarySubheadingTextStyle,),
-                      ) : Container(),
-                      dropdownMenuCard('Speakers', 1),
-                      dropdownClickedMap.values.elementAt(1) == true ? SizedBox(
-                        height: 180.0,
-                        child: FutureBuilder(
-                          future: getSpeakerFuture,
-                          builder: (context, snapshot) {
-                            return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
-                              primary: false,
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: snapshot.data.length,
-                              itemBuilder: (BuildContext context, int index){
-                                return SponsorSpeakerCard(snapshot, index);
-                              },
-                            ) : Container();
-                          }
-                        ),
-                      ) : Container(),
-                      dropdownMenuCard('Event Schedule', 2),
-                      dropdownClickedMap.values.elementAt(2) == true
-                          ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'To open the event schedule',
-                            style: summarySubheadingTextStyle,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          RaisedButton(
-                            onPressed: () =>
-                            {
-
-                              Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(scheduleDoc, _isLoading, 'Event Schedule'))),
-
-                            },
-                            child: Text(' Click Here ',
-                                style: GoogleFonts.poppins(
-                                    color: Colors.white)),
-                            color: Colors.yellow[800],
-                          )
-                        ],
-                      ) : Container(),
-
-                      dropdownMenuCard('Survey', 3),
-                      dropdownClickedMap.values.elementAt(3) == true
-                          ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'To open the event survey',
-                            style: summarySubheadingTextStyle,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          RaisedButton(
-                            onPressed: () =>
-                            {
-                              launchUrl = SurveyURL('https://forms.gle/1MvTaGJYRAw33ZYS6')
-                            },
-                            child: Text(' Click Here ',
-                                style: GoogleFonts.poppins(
-                                    color: Colors.white)),
-                            color: Colors.yellow[800],
-                          )
-                        ],
-                      ) : Container(),
-
-                      dropdownMenuCard('Event FAQs', 4),
-                      dropdownClickedMap.values.elementAt(4) == true
-                          ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'To open the event FAQs',
-                            style: summarySubheadingTextStyle,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          RaisedButton(
-                            onPressed: () =>
-                            {
-                              Navigator.of(context).push(MaterialPageRoute( builder: (context) => PdfScreen(faqDoc, _isLoading, 'Event FAQs'))),
-                            },
-                            child: Text(' Click Here ',
-                                style: GoogleFonts.poppins(
-                                    color: Colors.white)),
-                            color: Colors.yellow[800],
-                          )
-                        ],
-                      ) : Container(),
-
-                      dropdownMenuCard('Sponsors', 5),
-                      dropdownClickedMap.values.elementAt(5) == true ? SizedBox(
-                        height: 180.0,
-                        child: FutureBuilder(
-                          future: getSponsorFuture,
-                          builder: (context, snapshot) {
-                            return snapshot.connectionState == ConnectionState.done && snapshot.data != null ? ListView.builder(
-                              primary: false,
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: snapshot.data.length,
-                              itemBuilder: (BuildContext context, int index){
-                                return SponsorSpeakerCard(snapshot, index);
-                              },
-                            ) : Container();
-                          }
-                        ),
-                      ) : Container(),
-                      dropdownMenuCard('Event Organizers', 6),
-                      dropdownMenuCard('Map', 7),
-                      dropdownMenuCard('Event Meal Plan', 8),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+                    ),
+                  );
+                },
+            ),
           ),
           SafeArea(
             child: GestureDetector(
@@ -414,28 +514,20 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 backgroundColor: Color(0xFF9B1318),
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(50.0),),
-                  child: CachedNetworkImage(
+                  child: snapshot.data[index].image.toString().trim().isNotEmpty ? CachedNetworkImage(
                     imageUrl: snapshot.data[index].image,
                     height: 100,
                     fit: BoxFit.cover,
-                  ),
+                  ) : Image(image: AssetImage('images/defaultprofilepicture.jpg'), height: 350, fit: BoxFit.cover),
                 ),
               ),
             ),
-            Text(snapshot.data[index].toString().contains('Speaker') ? snapshot.data[index].name : snapshot.data[index].title, style: nameHeadingTextStyle,),
+            Text(snapshot.data[index].toString().contains('Speaker') || snapshot.data[index].toString().contains('Organiser') ? snapshot.data[index].name : snapshot.data[index].title, style: nameHeadingTextStyle,),
             snapshot.data[index].toString().contains('Speaker') ? Text(snapshot.data[index].companyName, style: summarySubheadingTextStyle,) : Container(),
           ],
         ),
       ),
     );
-  }
-
-  Future<void> SurveyURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   void getFile(String url, int v) async {

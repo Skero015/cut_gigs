@@ -12,6 +12,7 @@ class Speaker{
   String userID;
   String eventID;
   String email;
+  bool isApproved;
 
 
   Speaker.fromMap(Map<String, dynamic> data){
@@ -24,6 +25,7 @@ class Speaker{
     this.userID = data['userID'];
     this.eventID = data['eventID'];
     this.email = data['email'];
+    this.isApproved = data['isApproved'];
   }
 
   Map<String, dynamic> toMap() {
@@ -37,6 +39,7 @@ class Speaker{
       'speakerID': speakerID,
       'userID': userID,
       'eventID': eventID,
+      'isApproved' : isApproved,
     };
   }
 }

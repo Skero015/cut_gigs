@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cut_gigs/screens/EventDetailsScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +73,7 @@ class _MainDialogBoxState extends State<MainDialogBox> {
             radius: 45,
             child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(45)),
-                child: Image.asset("images/speaker1.png")
+                child: Image.asset("images/logo.png")
             ),
           ),
         ),
@@ -219,7 +220,9 @@ class _CommunicationDialogBoxState extends State<CommunicationDialogBox> {
             radius: 45,
             child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(45)),
-                child: Image.asset("images/speaker1.png")
+                child: CachedNetworkImage(
+                  imageUrl: widget.snapshot.data[widget.index].image,
+                ),
             ),
           ),
         ),

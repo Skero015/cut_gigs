@@ -36,8 +36,8 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
 
-      eventNotifier = Provider.of<EventNotifier>(context, listen: false);
-      //futureList = getEvents(context, eventNotifier);
+    eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+    //futureList = getEvents(context, eventNotifier);
     Firebase.initializeApp();
     _tabController = new TabController(length: 2, vsync: this);
   }
@@ -146,7 +146,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                           scrollDirection: Axis.vertical,
                           itemCount: snapshot.data.length,
                           itemBuilder: (BuildContext context, int index){
-                            eventDate = DateTime.fromMicrosecondsSinceEpoch(snapshot.data[index].date);
+                            eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date.millisecondsSinceEpoch);
                             return index == 0 ? Padding(
                               padding: const EdgeInsets.fromLTRB( 10.0, 42.0, 10.0 , 13.0),
                               child:date.isBefore(eventDate)? EventSummaryCard(context: context, snapshot: snapshot, index: index, eventNotifier: eventNotifier,) : Container(),
@@ -183,4 +183,3 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     );
   }
 }
-

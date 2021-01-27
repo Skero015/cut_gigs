@@ -59,7 +59,8 @@ class _SpeakerDetailsScreenState extends State<SpeakerDetailsScreen> {
                           padding: const EdgeInsets.only(top: 0, bottom: 30),
                           child: Center(
                             child: Text(
-                              widget.snapshot.data[widget.index].toString().contains('Speaker') ? 'Speaker' : 'Sponsor',
+                              widget.snapshot.data[widget.index].toString().contains('Speaker') ? 'Speaker' :
+                              widget.snapshot.data[widget.index].toString().contains('Sponsor') ? 'Sponsor':'Organiser',
                               style: pageHeadingTextStyle,
                               textAlign: TextAlign.center,
                             ),
@@ -72,11 +73,11 @@ class _SpeakerDetailsScreenState extends State<SpeakerDetailsScreen> {
                             backgroundColor: Colors.lightBlueAccent.withOpacity(0.5),
                             child: ClipRRect(
                               borderRadius: BorderRadius.all(Radius.circular(170.0),),
-                              child: CachedNetworkImage(
+                              child: widget.snapshot.data[widget.index].image.toString().trim().isNotEmpty ? CachedNetworkImage(
                                 imageUrl: widget.snapshot.data[widget.index].image,
                                 height: 350,
                                 fit: BoxFit.cover
-                              ),
+                              ) : Image(image: AssetImage('images/defaultprofilepicture.jpg'), height: 350, fit: BoxFit.cover),
                             ),
                           ),
                         ),
@@ -84,7 +85,8 @@ class _SpeakerDetailsScreenState extends State<SpeakerDetailsScreen> {
                         Center(
                           child: Column(
                             children: <Widget>[
-                              Text(widget.snapshot.data[widget.index].toString().contains('Speaker') ? widget.snapshot.data[widget.index].name : widget.snapshot.data[widget.index].title, style: nameHeadingTextStyle,),
+                              Text(widget.snapshot.data[widget.index].toString().contains('Speaker') ? widget.snapshot.data[widget.index].name :
+                              widget.snapshot.data[widget.index].toString().contains('Sponsor') ? widget.snapshot.data[widget.index].title : widget.snapshot.data[widget.index].name, style: nameHeadingTextStyle,),
                               widget.snapshot.data[widget.index].toString().contains('Speaker') ? Text(widget.snapshot.data[widget.index].companyName, style: summarySubheadingTextStyle,) : Container(),
                             ],
                           ),
@@ -102,11 +104,14 @@ class _SpeakerDetailsScreenState extends State<SpeakerDetailsScreen> {
                           padding: const EdgeInsets.only(top: 8.0, bottom: 20.0, left: 30),
                           child: speakerSummary(Icons.mail_outline, 'Email Address',widget.snapshot.data[widget.index].email),
                         ) : Container(),
-                        widget.snapshot.data[widget.index].toString().contains('Speaker') ? Padding(
+                        /*widget.snapshot.data[widget.index].toString().contains('Speaker') ? Padding(
                           padding: const EdgeInsets.only(top: 8.0, bottom: 20.0, left: 30),
                           child: speakerSummary(Icons.location_on_outlined, 'Address','Bloemfontein, Free State'),
+                        ) : Container(),*/
+                        widget.snapshot.data[widget.index].toString().contains('Organiser') ? Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 20.0, left: 30),
+                          child: speakerSummary(Icons.message_outlined, 'Message',widget.snapshot.data[widget.index].message),
                         ) : Container(),
-
                       ],
                     ),
                     ),
@@ -142,12 +147,14 @@ class _SpeakerDetailsScreenState extends State<SpeakerDetailsScreen> {
           ),
         ),
         SizedBox(width: 15,),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(heading, style: summaryHeadingTextStyle,),
-            Text(subHeading, style: summarySubheadingTextStyle,),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(heading, style: summaryHeadingTextStyle,softWrap: true,),
+              Text(subHeading, style: summarySubheadingTextStyle, softWrap: true,),
+            ],
+          ),
         ),
       ],
     );
