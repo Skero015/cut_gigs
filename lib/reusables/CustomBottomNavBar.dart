@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class CustomNavBar extends StatefulWidget {
 
-  CustomNavBar();
+  final int index;
+  CustomNavBar({this.index});
 
   @override
   _CustomNavBarState createState() => _CustomNavBarState();
@@ -18,6 +19,12 @@ class _CustomNavBarState extends State<CustomNavBar> {
   int _currentIndex = 1;
   final List<Widget> _children = [MyEventsScreen(),HomeScreen(),FavouritesScreen()];
 
+  @override
+  void initState() {
+    super.initState();
+
+    _currentIndex = widget.index;
+  }
 
   @override
   Widget build(BuildContext context) {

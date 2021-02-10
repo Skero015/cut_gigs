@@ -45,9 +45,12 @@ class Auth {
 
 //Sign in
   Future signIn(String email, String password) async {
+    print('signing in');
     UserCredential result = await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password);
+    print('signed in');
     User user = result.user;
+    print('user now is: ' + user.displayName);
     print(result);
     print(result.user);
 //Checking if user is varified

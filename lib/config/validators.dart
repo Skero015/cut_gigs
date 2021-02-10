@@ -30,4 +30,37 @@ class Validator {
       return null;
 
   }
+
+  //This is for validating the phone number
+  static String validateNumber(String value) {
+    Pattern pattern = r'^(?:[0])?[0-9]{10}$';
+    RegExp regex = new RegExp(pattern);
+    if(value.trim().isEmpty){
+      return 'This field cannot be left empty.';
+    } else if (!regex.hasMatch(value.trim()))
+      return 'Please enter a valid phone number.';
+    else
+      return null;
+
+  }
+
+  //This is for validating the name
+  static String validateName(String value) {
+    Pattern pattern = r"^[\d \w \s]+$";
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value.trim()))
+      return 'Please enter your name.';
+    else
+      return null;
+  }
+
+  //This is for validating the Surname
+  static String validateSurname(String value) {
+    Pattern pattern = r"^[a-zA-Z]+[a-zA-Z]*$";
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value.trim()))
+      return 'Please enter your surname.';
+    else
+      return null;
+  }
 }
