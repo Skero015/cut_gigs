@@ -53,14 +53,14 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
   bool _isBusyDialogVisible = false;
 
   final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
-    'sendMail',
+    'sendSpeakerRequestEmail',
   );
 
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  User user;
+  User user = FirebaseAuth.instance.currentUser;
 
-  var mailgun;
+  MailgunMailer mailgun;
 
   @override
   void initState() {
@@ -503,15 +503,23 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
     final bool gmailinstalled =  await DeviceApps.isAppInstalled(GMAIL_SCHEMA);
 
     var response = await mailgun.send(
-        from: user.displayName + ' <' + user.email + ' >',
-        to: 'osamgroupt@gmail.com',
-        subject: "Test email",
-        text: "Hello World");
+        from: Preferences.currentUser.displayName + ' <' + Preferences.currentUser.email + '>',
+        to: ['osamgroupt@gmail.com',],
+        subject:'Speaker Request From: ' + Preferences.currentUser.displayName,
+        html: 'Dear Management, <br> I, ' + Preferences.currentUser.displayName + ', am requesting to be a speaker at the ' + eventNotifier.currentEvent.title + ' event, hosted at ' +
+            eventNotifier.currentEvent.venue + '. <br><br>'
+            'Topic: ' + topicDropdownValue +
+            '<br>Company Name:' + _companyName.text.trim()  +
+            '<br>Position:' + _position.text.trim() +
+            '<br><br>Contact:' + Preferences.currentUser.email,);
 
-    print(response.toString());
-    return callable.call({
+    print(response.message);
+    print(response.status.toString());
+
+    /*return callable.call({
+      'email' : Preferences.currentUser.email,
       'text': 'Sending email with Flutter and SendGrid is fun!',
-      'subject': 'Email from Flutter'
+      'subject': 'Speaker Email from Flutter App'
     }).then((res) => print(res.data));
 
 
@@ -528,7 +536,7 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
       attachments: [ 'path/to/image.png', ],
       appSchema: gmailinstalled ? GMAIL_SCHEMA : null,
     );
-    await FlutterMailer.send(mailOptions);
+    await FlutterMailer.send(mailOptions);*/
 
     /*Future<http.Response> createAlbum(String title) {
       return http.post(

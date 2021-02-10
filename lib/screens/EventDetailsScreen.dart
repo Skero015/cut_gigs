@@ -322,7 +322,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
                                 controller: _tabController,
                                 children: [
                                   eventNotifier.currentEvent.locationLongitude.trim().isNotEmpty ? MapContainer() : Container(),
-                                  eventNotifier.currentEvent.mapPDF.trim().isNotEmpty ? Row(
+                                  eventNotifier.currentEvent.mapPDF != null || eventNotifier.currentEvent.mapPDF.trim().isNotEmpty ? Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -459,8 +459,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(heading, style: summaryHeadingTextStyle,),
-            Text(subHeading, style: summarySubheadingTextStyle,),
+            Text(heading, style: summaryHeadingTextStyle, softWrap: true, overflow: TextOverflow.visible,),
+            Text(subHeading, style: summarySubheadingTextStyle, softWrap: true, overflow: TextOverflow.ellipsis,),
           ],
         ),
       ],
