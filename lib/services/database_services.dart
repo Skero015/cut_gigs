@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/models/Category.dart';
 import 'package:cut_gigs/models/Favourite.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
@@ -17,7 +18,6 @@ class DatabaseService {
   final String uid;
   Api _api = Api('Users');
   DatabaseService({this.uid, this.context});
-  String orderNumber;
 
 //Collection Reference
   final CollectionReference userCollection =
@@ -41,7 +41,6 @@ class DatabaseService {
       'title':title,
       "country": country,
       'isAdmin' : false,
-      'isHost' : false,
     });
   }
 
@@ -61,7 +60,7 @@ class DatabaseService {
           });
         }else{
           return await userCollection.doc(uid).collection('Events').doc(eventID).set({
-            'eventID' : isFavourite,
+            'eventID' : eventID,
             'isFavourite' : isFavourite,
             'tagID' : "",
           });
@@ -167,6 +166,10 @@ class DatabaseService {
             'attendeeID': uid,
             'tagID': tagID,
             'eventID': eventNotifier.currentEvent.eventID,
+          }).whenComplete(() async{
+            await eventCollection.doc(eventNotifier.currentEvent.eventID).collection('Tokens').doc(Preferences.fcmToken).set({
+              'token': Preferences.fcmToken,
+            });
           });
         });
       });

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/screens/SettingsScreen.dart';
 import 'package:cut_gigs/screens/WebViewScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +97,12 @@ class _SideDrawerState extends State<SideDrawer> {
                       child: SideDrawerCategory('Host Login','images/drawer_icons/LoginIcon.png'),
                     ),*/
                     //Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
-
+                    SizedBox(height: 53,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30),
+                      child: SideDrawerCategory('Settings','images/drawer_icons/LoginIcon.png'),
+                    ),
+                    Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                   ],
                 ),
             ),
@@ -135,6 +141,10 @@ class SideDrawerCategory extends StatelessWidget {
           case "Host Login":
           /*Navigator.of(context).push(new MaterialPageRoute(
                 builder: (BuildContext context) => new EditProfileScreen()));*/
+            break;
+          case "Settings":
+          Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) => new SettingsScreen()));
             break;
         }
       },

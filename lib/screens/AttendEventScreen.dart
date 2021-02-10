@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/config/validators.dart';
@@ -22,6 +24,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
+import 'package:http/http.dart' as http;
+import 'package:mailgun/mailgun.dart';
 
 class AttendEventScreen extends StatefulWidget {
   @override
@@ -48,12 +52,23 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
   bool _autoValidate = false;
   bool _isBusyDialogVisible = false;
 
+  final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+    'sendMail',
+  );
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  User user;
+
+  var mailgun;
+
   @override
   void initState() {
     super.initState();
     myFocusNode = FocusNode();
 
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+    mailgun = MailgunMailer(domain: "sandbox34d37e7bfbd24187b015203924961775.mailgun.org", apiKey: "3b0190bdd2a5bb14a194d1884bdee0cb-4de08e90-c78c9fa0");
   }
 
   @override
@@ -487,6 +502,19 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
 
     final bool gmailinstalled =  await DeviceApps.isAppInstalled(GMAIL_SCHEMA);
 
+    var response = await mailgun.send(
+        from: user.displayName + ' <' + user.email + ' >',
+        to: 'osamgroupt@gmail.com',
+        subject: "Test email",
+        text: "Hello World");
+
+    print(response.toString());
+    return callable.call({
+      'text': 'Sending email with Flutter and SendGrid is fun!',
+      'subject': 'Email from Flutter'
+    }).then((res) => print(res.data));
+
+
     final MailOptions mailOptions = MailOptions(
       body: 'Dear Management, <br> I would love to be a speaker at the ' + eventNotifier.currentEvent.title + ' event, hosted at ' +
           eventNotifier.currentEvent.venue + '. <br><br>'
@@ -501,6 +529,19 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
       appSchema: gmailinstalled ? GMAIL_SCHEMA : null,
     );
     await FlutterMailer.send(mailOptions);
+
+    /*Future<http.Response> createAlbum(String title) {
+      return http.post(
+        Uri.https('jsonplaceholder.typicode.com', 'albums'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Access-Control-Allow-Origin' : '*',
+        },
+        body: jsonEncode(<String, String>{
+          'title': title,
+        }),
+      );
+    }*/
   }
 
   Widget bottomsheet() {

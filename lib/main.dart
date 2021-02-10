@@ -40,9 +40,10 @@ class MyApp extends StatelessWidget {
 
       await Firebase.initializeApp().then((value) {
         final FirebaseAuth auth = FirebaseAuth.instance;
-        if(auth.currentUser != null)
+        if(auth.currentUser != null){
           Preferences.currentUser = auth.currentUser;
           Preferences.uid = auth.currentUser.uid;
+        }
       });
     });
 

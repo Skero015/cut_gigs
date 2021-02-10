@@ -50,10 +50,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     initialiseLocalNotifications().whenComplete(() async{
-    await showNotification("Event Notification", "Your events have been refreshed", context);
+    //await showNotification("Event Notification", "Your events have been refreshed", context);
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
       eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+
+      bool visitingFlag = await Preferences.getVisitingFlag();
+      //Preferences.setVisitedFlag();
+
+      if(visitingFlag){
+
+      }
     });
 
     getCategoryFuture = getCategories();
@@ -160,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             width: double.infinity,
                             child: Swiper(
                                 itemBuilder: (BuildContext context, int index){
-                                  print("event is featured: " + snapshot.data[index].isPriority.toString());
+                                  //print("event is featured: " + snapshot.data[index].isPriority.toString());
                                   return snapshot.data[index].isPriority ? FeaturedEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier,) : Container();
                                 },
                               itemCount: Preferences.featuredEventsCount,

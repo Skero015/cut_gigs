@@ -1,6 +1,8 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/auth_screens/LoginScreen.dart';
+import 'package:cut_gigs/services/notification_services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,13 +14,24 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
+  final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+    'getUserId',
+  );
+
 @override
   void initState() {
 
   SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     Future.delayed(Duration(milliseconds: 2700), () async {
-      await Firebase.initializeApp();
+      try{
+        PushService().initialisePushService(context).whenComplete(() {
+          print('done initializing push notifications');
+        });
+      }catch(e){
+        print("Heyyyyy" + e.toString());
+      }
+
       Navigator.of(context).pop();
 
       if(Preferences.currentUser == null){

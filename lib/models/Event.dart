@@ -115,6 +115,7 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
   List<Event> _eventList = [];
   print("context " + context.toString());
   try{
+    print("getting fav events");
     await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
 
       print('got fav events in user collection');
@@ -134,6 +135,16 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
           event.tagID = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).tagID;
           _eventList.add(event);
           print(event.eventID);
+
+          if(value[i].tagID.toString().trim().isNotEmpty){
+            FirebaseFirestore.instance
+                .collection('Events')
+                .doc(value[i].eventID)
+                .collection('Tokens')
+                .doc(Preferences.fcmToken).set({
+              'token' : Preferences.fcmToken,
+            });
+          }
 
           i++;
         }
@@ -173,7 +184,7 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
       print('done placing the events in list');
     });
   }catch(e){
-    print(e);
+    print("Something is wrong w/ database: " + e.toString());
   }
 print(Preferences.featuredEventsCount);
   // ignore: unnecessary_statements
