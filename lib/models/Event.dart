@@ -159,9 +159,6 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
         snapshots.docs.forEach((element) {
           print(element.id);
           Event event = Event.fromMap(element.data());
-          print(event.eventID);
-          print("the eventID retrieved is: " + event.eventID);
-          print("the title retrieved is: " + event.title);
 
           value.forEach((elmnt) {
             if(elmnt.eventID == event.eventID){
@@ -194,40 +191,27 @@ print(Preferences.featuredEventsCount);
 
 Future<List> getEventsByCategory(BuildContext context, EventNotifier eventNotifier, String filterName) async{
 
-  //QuerySnapshot snapshots;
-  DocumentSnapshot docSnapshot;
+  QuerySnapshot snapshots;
 
   List<Event> _eventList = [];
   print("context " + context.toString());
   try{
-    await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
+    if(context.toString().contains("FilterScreen") && filterName.trim().isNotEmpty){
+      snapshots = await FirebaseFirestore.instance
+          .collection('Events')
+          .where("category", isEqualTo: filterName.trim())
+          .get();
 
-      if(context.toString().contains("FilterScreen") && filterName.isEmpty != true){
-        print('inside if filter screen statement');
+      snapshots.docs.forEach((element) {
+        Event event = Event.fromMap(element.data());
+        _eventList.add(event);
+        print(event.category);
+      });
 
-        int i = 0;
+      print('event list has '+_eventList.length.toString() + ' OBJECTS');
+    }
 
-        while(i < value.length){
-          docSnapshot = await FirebaseFirestore.instance
-              .collection('Events')
-              .doc(value[i].eventID)
-              .get();
-
-          Event event = Event.fromMap(docSnapshot.data());
-          if(event.category == filterName)
-          {
-            _eventList.add(event);
-          }
-          print('event list has '+_eventList.length.toString() + ' OBJECTS');
-          print(event.category);
-
-          i++;
-        }
-        print('category docs got');
-      }
-
-      print('done placing the events in list');
-    });
+    print('done placing the events in list');
   }catch(e){
     print(e);
   }

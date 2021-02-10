@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   //print("event is featured: " + snapshot.data[index].isPriority.toString());
                                   return snapshot.data[index].isPriority ? FeaturedEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier,) : Container();
                                 },
-                              itemCount: Preferences.featuredEventsCount,
+                              itemCount: Preferences.featuredEventsCount - 1,
                               pagination: null,
                               control: null,
                               autoplay: Preferences.featuredEventsCount > 1 ? true : false,
@@ -200,9 +200,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     SizedBox(height: 5.0,),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                      child: StreamBuilder(
+                      child: FutureBuilder(
                         initialData: [],
-                        stream: streamer("Upcoming Events"),
+                        future: getEvents(context, eventNotifier, "Upcoming Events"),
                         builder: (context, snapshot) {
                           return snapshot.connectionState == ConnectionState.done && snapshot.data != null ?
                           SizedBox(

@@ -41,7 +41,15 @@ exports.sendSpeakerRequestEmail = functions.https.onCall(async (data, context) =
           html: 'Hello, This is not a plain-text email, I wanted to test some spicy Mailgun sauce in NodeJS! <a href="http://0.0.0.0:3030/validate?' + req.params.mail + '">Click here to add your email address to a mailing list</a>'
         }
 
-
+    mg.messages().send(data, function (error, body) {
+        if (error) {
+            res.render('error', {error: error});
+        }
+        else {
+            console.log("attachment sent", fp);
+        }
+    });
+    
 });
 
 //firebase messaging

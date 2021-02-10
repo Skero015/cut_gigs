@@ -97,61 +97,69 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   Center(
                     child: Text('Settings',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
                   ),
-                  SizedBox(height: 30,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Receive Notifications',style:  GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, letterSpacing: 0.9),textAlign: TextAlign.center,),
-                      FlutterSwitch(
-                        width: 125.0,
-                        height: 45.0,
-                        valueFontSize: 20.0,
-                        toggleSize: 35.0,
-                        value: switchStatus,
-                        borderRadius: 30.0,
-                        padding: 8.0,
-                        showOnOff: true,
-                        onToggle: (val) {
-                          setState(() {
-                            switchStatus = val;
-                            Preferences.setNotificationsFlag(switchStatus);
-                          });
-                        },
-                      ),
-                    ],
+                  SizedBox(height: 60,),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Receive Notifications',style:  GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, letterSpacing: 0.9),textAlign: TextAlign.center,),
+                        FlutterSwitch(
+                          width: 125.0,
+                          height: 45.0,
+                          valueFontSize: 20.0,
+                          toggleSize: 35.0,
+                          value: switchStatus,
+                          borderRadius: 30.0,
+                          padding: 8.0,
+                          showOnOff: true,
+                          onToggle: (val) {
+                            setState(() {
+                              switchStatus = val;
+                              Preferences.setNotificationsFlag(switchStatus);
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(height: 20,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Institution',style:  GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, letterSpacing: 0.9),textAlign: TextAlign.center,),
-                    //dropdown of all universities
-                    ],
-                  ),
-                  DropdownButton<String>(
-                    value: institutionDropdownValue,
-                    icon: Padding(
-                      padding: const EdgeInsets.only(left: 425.0),
-                      child: Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.black,
-                        size: 39,
-                      ),
-                    ),
-                    underline: null,
-                    items: institutionDropdownList,
-                    onChanged: (String newValue) {
-                      setState(() {
-                        institutionDropdownValue = newValue;
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: Text('Institution',style:  GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, letterSpacing: 0.9),textAlign: TextAlign.center,),
+                        ),
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: institutionDropdownValue,
+                            icon: Padding(
+                              padding: const EdgeInsets.only(left: 475.0),
+                              child: Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.black,
+                                size: 60,
+                              ),
+                            ),
+                            items: institutionDropdownList,
+                            onChanged: (String newValue) {
+                              setState(() {
+                                institutionDropdownValue = newValue;
 
-                        if(institutionDropdownValue.trim() != "All"){
-                          institutionNotifier.currentInstitution = institutionNotifier.institutionList.singleWhere((element) => element.id == newValue);
-                          Preferences.setInstitutionPref(institutionNotifier.currentInstitution.id);
-                        }else{
-                          Preferences.setInstitutionPref("All");
-                        }
-                      });
-                    },
+                                if(institutionDropdownValue.trim() != "All"){
+                                  institutionNotifier.currentInstitution = institutionNotifier.institutionList.singleWhere((element) => element.id == newValue);
+                                  Preferences.setInstitutionPref(institutionNotifier.currentInstitution.id);
+                                }else{
+                                  Preferences.setInstitutionPref("All");
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -168,11 +176,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   Navigator.of(context).pop();
                   await auth.signOut().then((value) {
                     print('success');
-                    Navigator.of(context).push(new MaterialPageRoute(
-                        builder: (BuildContext context) => new LoginScreen()));
+
                   }).catchError((onError){
                     print(onError);
                   });
+                  Navigator.of(context).push(new MaterialPageRoute(
+                      builder: (BuildContext context) => new LoginScreen()));
                 },//Ink widget here, is a child of the Button, learning more about it however...
                 child: Ink(//The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
                   decoration: const BoxDecoration(
