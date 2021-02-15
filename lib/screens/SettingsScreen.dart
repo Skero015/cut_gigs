@@ -4,6 +4,7 @@ import 'package:cut_gigs/models/Institution.dart';
 import 'package:cut_gigs/notifiers/institution_notifier.dart';
 import 'package:cut_gigs/screens/auth_screens/LoginScreen.dart';
 import 'package:cut_gigs/services/auth_services.dart';
+import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   bool switchStatus = false;
 
   void addInstitutionList() async{
+    institutionDropdownList.add(new DropdownMenuItem(child: Text("All"), value: "All"));
     institutionNotifier.institutionList.forEach((element) {
       if(!institutionDropdownList.contains(element.id))
       institutionDropdownList.add(new DropdownMenuItem(child: Text(element.name), value: element.id));
@@ -144,17 +146,21 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             onTap: (){
                               print(institutionDropdownList.first.value);
                             },
-                            onChanged: (String newValue) {
+                            onChanged: (String newValue) async{
                               setState(() {
                                 institutionDropdownValue = newValue;
-
-                                if(institutionDropdownValue.trim() != "All"){
-                                  institutionNotifier.currentInstitution = institutionNotifier.institutionList.singleWhere((element) => element.id == newValue);
-                                  Preferences.setInstitutionPref(institutionNotifier.currentInstitution.id);
-                                }else{
-                                  Preferences.setInstitutionPref("All");
-                                }
                               });
+
+                              if(institutionDropdownValue.trim().toLowerCase() != "all"){
+                                institutionNotifier.currentInstitution = institutionNotifier.institutionList.singleWhere((element) => element.id == newValue);
+                                Preferences.institutionPref = institutionNotifier.currentInstitution.name;
+                                await DatabaseService(uid: Preferences.uid).updatePreferences('Institution', institutionID: institutionNotifier.currentInstitution.name);
+                                Preferences.setInstitutionPref(institutionNotifier.currentInstitution.id);
+                              }else{
+                                Preferences.institutionPref = "All";
+                                await DatabaseService(uid: Preferences.uid).updatePreferences('Institution', institutionID: "All");
+                                Preferences.setInstitutionPref("All");
+                              }
                             },
                           ),
                         ),

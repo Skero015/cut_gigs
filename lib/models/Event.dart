@@ -134,7 +134,6 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
           event.isFavourite = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).isFavourite;
           event.tagID = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).tagID;
           _eventList.add(event);
-          print(event.eventID);
 
           if(value[i].tagID.toString().trim().isNotEmpty){
             FirebaseFirestore.instance
@@ -152,14 +151,24 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
         print('fav docs got');
       }else{
         print('inside else');
-        snapshots = await FirebaseFirestore.instance
-            .collection('Events')
-            .get();
 
+        print("institutionPref: " + Preferences.institutionPref);
+        if(Preferences.institutionPref.toLowerCase() == "all"){
+          snapshots = await FirebaseFirestore.instance
+              .collection('Events')
+              .get();
+        }else{
+          snapshots = await FirebaseFirestore.instance
+              .collection('Events')
+              .where('institutionID', isEqualTo: Preferences.institutionPref)
+              .get();
+        }
+
+
+        print('working with snapshot......');
         snapshots.docs.forEach((element) {
-          print(element.id);
+          print("the element is now: " + element.id);
           Event event = Event.fromMap(element.data());
-
           value.forEach((elmnt) {
             if(elmnt.eventID == event.eventID){
               event.isFavourite = elmnt.isFavourite;
@@ -188,7 +197,6 @@ Future<List> getFeaturedEvents(BuildContext context, EventNotifier eventNotifier
   List<Event> _eventList = [];
 
   await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
-    print('getting featured events:');
     snapshots = await FirebaseFirestore.instance
         .collection('Events')
         .where('isPriority', isEqualTo: true)
@@ -196,7 +204,6 @@ Future<List> getFeaturedEvents(BuildContext context, EventNotifier eventNotifier
 
     snapshots.docs.forEach((element) {
       Event event = Event.fromMap(element.data());
-
       value.forEach((elmnt) {
         if (elmnt.eventID == event.eventID) {
           event.isFavourite = elmnt.isFavourite;

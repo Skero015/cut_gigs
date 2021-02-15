@@ -41,6 +41,11 @@ class DatabaseService {
       'title':title,
       "country": country,
       'isAdmin' : false,
+    }).whenComplete(() => {
+      userCollection.doc(uid).collection('Preferences').doc('Institution').set({
+        'type' : 'Institution',
+        'preference' : 'All',
+      })
     });
   }
 
@@ -175,6 +180,18 @@ class DatabaseService {
       });
 
     }catch(e){
+      print(e.toString());
+    }
+  }
+
+  Future updatePreferences(String preferencesID, {String institutionID}) async {
+
+    try{
+      await userCollection.doc(uid).collection('Preferences').doc(preferencesID).set({
+        'type' : institutionID != null ? "Institution" : "",
+        'preference': institutionID != null ? institutionID : "",
+      });
+    }catch(e) {
       print(e.toString());
     }
   }

@@ -167,8 +167,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: StreamBuilder(
                         stream: Stream.fromFuture(getFeaturedEvents(context, eventNotifier)),
                         builder: (context, snapshot) {
-                          print("snapshot for featured events is now: " + snapshot.connectionState.toString());
-                          print(snapshot.hasData);
                           return snapshot.connectionState == ConnectionState.done && snapshot.data != null ?
                           SizedBox(
                             height: 370,

@@ -15,6 +15,8 @@ class Preferences {
 
   static SharedPreferences preferences;
 
+  static String institutionPref;
+
   //when user visits app for the first time
   static getVisitingFlag() async {
     preferences = await SharedPreferences.getInstance();
