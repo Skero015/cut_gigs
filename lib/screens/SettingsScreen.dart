@@ -19,28 +19,27 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   Auth auth;
   String institutionDropdownValue = "";
   InstitutionNotifier institutionNotifier;
-  List<DropdownMenuItem<String>> institutionDropdownList = [];
+  List<DropdownMenuItem<String>> institutionDropdownList;
   bool switchStatus = false;
 
-  void addInstitutionList(InstitutionNotifier institutionNotifier) async{
-    institutionDropdownList = [];
-
-    await getInstitutionList(institutionNotifier).then((value) {
-      institutionNotifier.institutionList.forEach((element) {
-        institutionDropdownList.add(new DropdownMenuItem(child: Text(element.name), value: element.id));
-      });
+  void addInstitutionList() async{
+    institutionNotifier.institutionList.forEach((element) {
+      if(!institutionDropdownList.contains(element.id))
+      institutionDropdownList.add(new DropdownMenuItem(child: Text(element.name), value: element.id));
     });
   }
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      institutionNotifier = Provider.of<InstitutionNotifier>(context, listen: false);
-      addInstitutionList(institutionNotifier);
-      switchStatus = Preferences.getNotificationsFlag();
+    institutionDropdownList = [];
+    Preferences.getNotificationsFlag().then((value) {
+      switchStatus = value;
     });
+
+    institutionNotifier = Provider.of<InstitutionNotifier>(context, listen: false);
+    addInstitutionList();
+    print("switch status: " + switchStatus.toString());
   }
 
   @override
@@ -127,6 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   Padding(
                     padding: const EdgeInsets.only(left: 20, right: 20),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -134,16 +134,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         ),
                         DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
-                            value: institutionDropdownValue,
-                            icon: Padding(
-                              padding: const EdgeInsets.only(left: 475.0),
-                              child: Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.black,
-                                size: 60,
-                              ),
+                            value: institutionDropdownValue.trim().isNotEmpty ? institutionDropdownValue : null,
+                            icon: Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.black,
+                              size: 60,
                             ),
-                            items: institutionDropdownList,
+                            items: institutionDropdownList.toList(),
+                            onTap: (){
+                              print(institutionDropdownList.first.value);
+                            },
                             onChanged: (String newValue) {
                               setState(() {
                                 institutionDropdownValue = newValue;

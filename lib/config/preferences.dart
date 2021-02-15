@@ -11,8 +11,6 @@ class Preferences {
 
   static String fcmToken;
 
-  static int featuredEventsCount = 0;
-
   static List<Event> filteredEvents = <Event>[];
 
   static SharedPreferences preferences;
@@ -40,7 +38,7 @@ class Preferences {
   }
 
   //whether the user wants to receive notifications or not
-  static getNotificationsFlag() async {
+  static Future<bool> getNotificationsFlag() async {
     preferences = await SharedPreferences.getInstance();
     bool notificationsFlag = preferences.getBool("notifications") ?? false;
     return notificationsFlag;

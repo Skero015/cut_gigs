@@ -25,9 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Future.delayed(Duration(milliseconds: 2700), () async {
       try{
-        PushService().initialisePushService(context).whenComplete(() {
-          print('done initializing push notifications');
-        });
+        PushService().initialisePushService(context);
       }catch(e){
         print("Heyyyyy" + e.toString());
       }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
@@ -23,9 +24,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_mailer/flutter_mailer.dart';
-import 'package:http/http.dart' as http;
 import 'package:mailgun/mailgun.dart';
+import 'package:add_2_calendar/add_2_calendar.dart' as Event;
+
 
 class AttendEventScreen extends StatefulWidget {
   @override
@@ -386,6 +387,7 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                                       }
                                     });
 
+                                    addToCalendar();
                                     if(attendee == 'Speaker'){
 
                                       await DatabaseService(uid: Preferences.uid).uploadSpeakerImage(eventNotifier, Preferences.uid, _imageFile != null ? File(_imageFile.path) : null).then((value) async{
@@ -625,5 +627,17 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
     }
     String saltStr = salt.toString();
     return saltStr;
+  }
+
+  void addToCalendar() {
+
+    Event.Event calendarEvent = Event.Event(
+      title: eventNotifier.currentEvent.title,
+      description: eventNotifier.currentEvent.about,
+      location: eventNotifier.currentEvent.venue,
+      startDate: DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date.millisecondsSinceEpoch),
+      endDate: DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.endDate.millisecondsSinceEpoch),
+    );
+    Add2Calendar.addEvent2Cal(calendarEvent);
   }
 }

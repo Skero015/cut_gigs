@@ -110,9 +110,9 @@ class Event {
 Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String widgetName) async{
   QuerySnapshot snapshots;
   DocumentSnapshot docSnapshot;
-  Preferences.featuredEventsCount = 0;
 
   List<Event> _eventList = [];
+
   print("context " + context.toString());
   try{
     print("getting fav events");
@@ -165,15 +165,10 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
               event.isFavourite = elmnt.isFavourite;
               event.tagID = elmnt.tagID;
             }
-            print(elmnt.tagID);
           });
 
-          if(event.isPriority){
-            Preferences.featuredEventsCount++;
-          }
           _eventList.add(event);
           print(event.mapPDF != null ? event.mapPDF : "event mapPDF null");
-          print(_eventList.length);
         });
         print('docs got');
       }
@@ -183,9 +178,38 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
   }catch(e){
     print("Something is wrong w/ database: " + e.toString());
   }
-print(Preferences.featuredEventsCount);
-  // ignore: unnecessary_statements
-  widgetName.contains('Upcoming') ? eventNotifier.eventList = _eventList : null;
+  Preferences.filteredEvents = _eventList;
+  return _eventList;
+}
+
+Future<List> getFeaturedEvents(BuildContext context, EventNotifier eventNotifier) async{
+
+  QuerySnapshot snapshots;
+  List<Event> _eventList = [];
+
+  await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
+    print('getting featured events:');
+    snapshots = await FirebaseFirestore.instance
+        .collection('Events')
+        .where('isPriority', isEqualTo: true)
+        .get();
+
+    snapshots.docs.forEach((element) {
+      Event event = Event.fromMap(element.data());
+
+      value.forEach((elmnt) {
+        if (elmnt.eventID == event.eventID) {
+          event.isFavourite = elmnt.isFavourite;
+          event.tagID = elmnt.tagID;
+        }
+      });
+
+      _eventList.add(event);
+      print(event.mapPDF != null ? event.mapPDF : "event mapPDF null");
+      print(_eventList.length);
+    });
+  });
+
   return _eventList;
 }
 

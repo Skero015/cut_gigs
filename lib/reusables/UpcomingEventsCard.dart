@@ -84,12 +84,12 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
                 new BoxShadow(
                   color: Colors.grey[800],
                   offset: Offset(2.0, 7.0),
-                  blurRadius: 15.0,
+                  blurRadius: 5.0,
                 ),
                 new BoxShadow(
                   color: Colors.white,
                   offset: Offset(0, -14),
-                  blurRadius: 15.0,
+                  blurRadius: 5.0,
                 ),
               ],
               borderRadius: BorderRadius.all(Radius.circular(25.0),),

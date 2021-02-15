@@ -1,5 +1,6 @@
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/notifiers/institution_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
@@ -22,6 +23,9 @@ void main() async => {
       providers: [
         ChangeNotifierProvider(
           create: (context) => EventNotifier(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => InstitutionNotifier(),
         ),
       ],
       child: MyApp())),
