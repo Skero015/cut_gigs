@@ -18,6 +18,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   String _tagID;
   String _attendeeID;
+  String name;
 
   EventNotifier eventNotifier;
 
@@ -32,6 +33,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
         _attendeeID = value['attendeeID'];
         FirebaseFirestore.instance.collection('Events').doc(eventNotifier.currentEvent.eventID).collection('Attendees').doc(_attendeeID).update({
           'hasAttended' : true,
+        }).whenComplete(() {
+          FirebaseFirestore.instance.collection('Users').doc(_attendeeID).get().then((value) {
+            name = value['name'];
+          });
         });
       })
     });
@@ -111,14 +116,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ),
               Row(
                 children: [
-                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
-                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                  Text( 'Name: $name',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
                 ],
               ),
               Row(
                 children: [
-                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
-                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                  Text( 'Tag ID: $_tagID',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
                 ],
               ),
             ],
