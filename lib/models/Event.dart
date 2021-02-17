@@ -118,6 +118,25 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
     print("getting fav events");
     await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
 
+      int eventsCounter = 0;
+      while(eventsCounter < value.length){
+        docSnapshot = await FirebaseFirestore.instance
+            .collection('Events')
+            .doc(value[eventsCounter].eventID)
+            .get();
+
+        if(value[eventsCounter].tagID.toString().trim().isNotEmpty){
+          FirebaseFirestore.instance
+              .collection('Events')
+              .doc(value[eventsCounter].eventID)
+              .collection('Tokens')
+              .doc(Preferences.fcmToken).set({
+            'token' : Preferences.fcmToken,
+          });
+        }
+        eventsCounter++;
+      }
+
       print('got fav events in user collection');
       if(context.toString().contains("FavouritesScreen") || context.toString().contains("MyEventsScreen")){
         print('inside if statement');

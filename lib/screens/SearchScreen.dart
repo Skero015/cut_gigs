@@ -57,7 +57,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKeySearchScreen,
-      drawer: Preferences.isAdmin ? SideDrawer() : null,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -86,7 +85,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              !Preferences.isAdmin ? GestureDetector(
+                              GestureDetector(
                                 child: Row(
                                   children: <Widget>[
                                     Icon(
@@ -105,16 +104,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                 onTap: () {
                                   Navigator.of(context).pop();
                                 },
-                              ) : GestureDetector(
-                            child: Image(
-                              image: AssetImage('images/Drawer.png'),
-                              fit: BoxFit.cover,
-                              height: 35.0,
-                            ),
-                            onTap: () {
-                              _scaffoldKeySearchScreen.currentState.openDrawer();
-                            },
-                          ),
+                              ),
                               Image(
                                 image: AssetImage('images/AppBar.png'),
                                 fit: BoxFit.cover,
@@ -202,8 +192,8 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                       eventDate = DateTime.fromMillisecondsSinceEpoch(filteredList[index].date.millisecondsSinceEpoch).toLocal();
                       if(date.isBefore(eventDate)){
                         return _searchController.text.trim().isNotEmpty ? Padding(
-                          padding: const EdgeInsets.only(top: 20.0, left: 10, right: 10),
-                          child: UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier),
+                          padding: const EdgeInsets.only(top: 20.0, left: 35, right: 35),
+                          child: UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier, context: this.context,),
                         ) : Container();//eventSummaryCard(context, snapshot, index, eventNotifier);
                       }else{
                         return Container();

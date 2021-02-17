@@ -223,8 +223,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   itemBuilder: (BuildContext context, int index){
                                     eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date.millisecondsSinceEpoch);
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
-                                      child: date.isBefore(eventDate) ? UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier) : Container(),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+                                      child: date.isBefore(eventDate) ? Padding(
+                                        padding: const EdgeInsets.only(top: 25.0),
+                                        child: UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier),
+                                      ) : Container(),
                                     );
                                   },
                                 ),

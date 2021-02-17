@@ -24,6 +24,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 
 class EventDetailsScreen extends StatefulWidget {
+
+  bool isSubscribed;
+  EventDetailsScreen({this.isSubscribed});
   @override
   _EventDetailsScreenState createState() => _EventDetailsScreenState();
 }
@@ -393,7 +396,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
               },
             ),
           ),
-          Positioned(
+          widget.isSubscribed == null ? Positioned(
               bottom: 0,
               left: 0,
               right: 0,
@@ -427,7 +430,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
                   padding: const EdgeInsets.all(0.0),
                 ),
               ),
-          ),
+          ): Container(),
         ],
       ),
     );

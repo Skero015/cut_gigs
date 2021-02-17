@@ -52,7 +52,8 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
         widget.eventNotifier.currentEvent = widget.snapshot.data[widget.index];
         print(widget.eventNotifier.currentEvent.eventID + " selected");
 
-        if(Preferences.isAdmin){
+        print('context: ' + widget.context.toString());
+        if(Preferences.isAdmin && widget.context.toString().contains('SearchScreen')){
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => ScannerScreen()));
         }else{
           if(widget.snapshot.data[widget.index].password.toString().trim().isNotEmpty){
@@ -146,14 +147,16 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
                             fit: BoxFit.fitHeight,
                           ),
                           SizedBox(width: 10,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: <Widget>[
-                              Text(widget.snapshot.data[widget.index].venue,style: venueCardTextStyle,),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 110.0),
-                                child: GestureDetector(
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width - 275,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text(widget.snapshot.data[widget.index].venue,style: venueCardTextStyle,),
+                                Spacer(),
+                                GestureDetector(
                                   child: Image(
                                     image: isFavImgClicked ? AssetImage('images/LikedEvent.png') : AssetImage('images/unLikeEvent.png'),
                                     height: 40,
@@ -173,8 +176,8 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
                                     print(isFavImgClicked);
                                   },
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),

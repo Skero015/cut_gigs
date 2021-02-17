@@ -180,12 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 onPressed: () async{
 
                   Navigator.of(context).pop();
-                  await auth.signOut().then((value) {
-                    print('success');
-
-                  }).catchError((onError){
-                    print(onError);
-                  });
+                  await auth.signOut();
                   Navigator.of(context).push(new MaterialPageRoute(
                       builder: (BuildContext context) => new LoginScreen()));
                 },//Ink widget here, is a child of the Button, learning more about it however...

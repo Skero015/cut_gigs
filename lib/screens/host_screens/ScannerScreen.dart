@@ -109,6 +109,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   ),
                 ),
               ),
+              Row(
+                children: [
+                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                ],
+              ),
+              Row(
+                children: [
+                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                  Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                ],
+              ),
             ],
           )
       ),
