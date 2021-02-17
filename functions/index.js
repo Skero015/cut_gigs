@@ -70,7 +70,7 @@ exports.sendToTopic = functions.firestore.document('Events/{eventId}')
     const payload = admin.messaging.MessagingPayload = {
         notification: {
             title: updatedEvent.title,
-            body: updatedEvent.about,
+            body: "Details about " + updatedEvent.title + " event have been updated. Click to view updated information about the event.",
             image: updatedEvent.image,
             sound: 'default',
             logo: updatedEvent.image,

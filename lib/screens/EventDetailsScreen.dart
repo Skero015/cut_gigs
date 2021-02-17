@@ -8,6 +8,7 @@ import 'package:cut_gigs/models/Sponsor.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/MapContainerWidget.dart';
 import 'package:cut_gigs/screens/AttendEventScreen.dart';
+import 'package:cut_gigs/screens/ChatScreen.dart';
 import 'package:cut_gigs/screens/PdfScreen.dart';
 import 'package:cut_gigs/screens/SpeakerDetailsScreens.dart';
 import 'package:cut_gigs/screens/WebViewScreen.dart';
@@ -105,6 +106,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
     getSpeakerFuture = getSpeakers(eventNotifier.currentEvent.eventID);
     getSponsorFuture = getSponsors(eventNotifier.currentEvent.eventID);
     getOrganiserFuture = getOrganisers(eventNotifier.currentEvent.eventID);
+
+    Preferences.currentContext = context;
   }
 
   @override
@@ -396,7 +399,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
               },
             ),
           ),
-          widget.isSubscribed == null ? Positioned(
+          Positioned(
               bottom: 0,
               left: 0,
               right: 0,
@@ -405,7 +408,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
                 child: RaisedButton(//Button comes with its own onTap or onPressed method .... I do not normally decorate buttons with Ink and Container widgets, I had to find a way to give it gradient colors since RaisedButton does not come with the decoration: field
                   onPressed: () {
 
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => AttendEventScreen()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => widget.isSubscribed == null ? AttendEventScreen() : ChatScreen()));
 
                   },//Ink widget here, is a child of the Button, learning more about it however...
                   child: Ink(//The Ink widget allowed us to decorate the button as we wish (we needed to use it for the color gradients) .
@@ -421,7 +424,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
                     child: Container(
                         constraints: const BoxConstraints(minWidth: 50.0, minHeight: 70),
                         alignment: Alignment.center,
-                        child: Text('Attend Event',textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white, letterSpacing: 0.8),)),
+                        child: Text( widget.isSubscribed == null ? 'Attend Event' : 'Join Chat',textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white, letterSpacing: 0.8),)),
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -430,7 +433,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
                   padding: const EdgeInsets.all(0.0),
                 ),
               ),
-          ): Container(),
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/models/Event.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
@@ -31,6 +32,8 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
 
     _tabController = new TabController(length: 2, vsync: this);
+
+    Preferences.currentContext = context;
   }
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
@@ -121,10 +122,10 @@ class _TagScreenState extends State<TagScreen> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.only(topLeft:Radius.circular(22.0),topRight:Radius.circular(22.0)),
                                   child: GestureDetector(
-                                    child: Image(
-                                      image: NetworkImage(eventNotifier.currentEvent.image),
+                                    child: CachedNetworkImage(
+                                      imageUrl: eventNotifier.currentEvent.image,
                                       height: 237,
-                                      //width: 580,
+                                      width: 590,
                                       fit: BoxFit.cover,
                                     ),
                                     onTap: () {

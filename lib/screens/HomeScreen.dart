@@ -10,6 +10,7 @@ import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/reusables/FeaturedEventsCard.dart';
 import 'package:cut_gigs/reusables/SearchWidget.dart';
 import 'package:cut_gigs/reusables/SideDrawer.dart';
+import 'package:cut_gigs/reusables/SnackBars.dart';
 import 'package:cut_gigs/reusables/UpcomingEventsCard.dart';
 import 'package:cut_gigs/services/database_services.dart';
 import 'package:cut_gigs/services/notification_services.dart';
@@ -76,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       addInstitutionList(institutionNotifier);
       bool visitingFlag = await Preferences.getVisitingFlag();
       //Preferences.setVisitedFlag();
-
+      showTopFlash(context: context, title: 'Test Title', message: 'A test message with a test title at top');
       if(visitingFlag){
 
       }
@@ -85,6 +86,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     getCategoryFuture = getCategories();
 
     _tabController = new TabController(length: 2, vsync: this);
+
+    Preferences.currentContext = context;
   }
 
   @override

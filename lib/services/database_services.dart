@@ -202,4 +202,19 @@ class DatabaseService {
       print(e.toString());
     }
   }
+
+  Future postMessage(String message, String eventID) async {
+
+    try{
+      await eventCollection.doc(eventID).collection('Messages').doc().set({
+        'name' : Preferences.currentUser.displayName,
+        'senderID' : Preferences.uid,
+        'message' : message,
+        'createdAt' : DateTime.now(),
+        'isLiked' : false,
+      });
+    }catch(e) {
+      print(e.toString());
+    }
+  }
 }

@@ -1,6 +1,7 @@
 
 import 'package:cut_gigs/models/Event.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {
@@ -52,4 +53,5 @@ class Preferences {
   }
 
   static String reason = "none";
+  static BuildContext currentContext;
 }
