@@ -16,7 +16,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class SearchScreen extends StatefulWidget {
 
   AsyncSnapshot snapshot;
-  SearchScreen({this.snapshot});
+  String fromContext;
+  SearchScreen({this.snapshot, this.fromContext});
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
@@ -56,6 +57,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKeySearchScreen,
+      drawer: Preferences.isAdmin ? SideDrawer() : null,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -84,7 +86,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              GestureDetector(
+                              !Preferences.isAdmin ? GestureDetector(
                                 child: Row(
                                   children: <Widget>[
                                     Icon(
@@ -103,7 +105,16 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                 onTap: () {
                                   Navigator.of(context).pop();
                                 },
-                              ),
+                              ) : GestureDetector(
+                            child: Image(
+                              image: AssetImage('images/Drawer.png'),
+                              fit: BoxFit.cover,
+                              height: 35.0,
+                            ),
+                            onTap: () {
+                              _scaffoldKeySearchScreen.currentState.openDrawer();
+                            },
+                          ),
                               Image(
                                 image: AssetImage('images/AppBar.png'),
                                 fit: BoxFit.cover,

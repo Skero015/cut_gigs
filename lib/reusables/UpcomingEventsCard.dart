@@ -4,6 +4,7 @@ import 'package:cut_gigs/models/Event.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/Dialogs.dart';
 import 'package:cut_gigs/screens/EventDetailsScreen.dart';
+import 'package:cut_gigs/screens/host_screens/ScannerScreen.dart';
 import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -51,23 +52,27 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
         widget.eventNotifier.currentEvent = widget.snapshot.data[widget.index];
         print(widget.eventNotifier.currentEvent.eventID + " selected");
 
-        if(widget.snapshot.data[widget.index].password.toString().trim().isNotEmpty){
-
-          showDialog(context: context,
-              builder: (BuildContext context){
-                return CommunicationDialogBox(
-                  title: "Enter Event Password",
-                  snapshot: widget.snapshot,
-                  index: widget.index,
-                  buttonText: "Continue",
-                );
-              }
-          );
-
+        if(Preferences.isAdmin){
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ScannerScreen()));
         }else{
+          if(widget.snapshot.data[widget.index].password.toString().trim().isNotEmpty){
 
-          print('moving to eventDetails');
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
+            showDialog(context: context,
+                builder: (BuildContext context){
+                  return CommunicationDialogBox(
+                    title: "Enter Event Password",
+                    snapshot: widget.snapshot,
+                    index: widget.index,
+                    buttonText: "Continue",
+                  );
+                }
+            );
+
+          }else{
+
+            print('moving to eventDetails');
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
+          }
         }
 
       },

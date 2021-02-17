@@ -55,6 +55,12 @@ class DatabaseService {
     });
   }
 
+  Future getPriveledgeBool() async {
+    FirebaseFirestore.instance.collection('Users').doc(uid).get().then((value) {
+      Preferences.isAdmin = value['isAdmin'];
+    });
+  }
+
   Future updateEventFavourites(bool isFavourite, String eventID) async {
 
     try{
@@ -165,6 +171,7 @@ class DatabaseService {
         await eventCollection.doc(eventNotifier.currentEvent.eventID).collection('Attendees').doc(uid).set({
           'userID' : uid,
           'tagID' : tagID,
+          'hasAttended' : false,
         }).whenComplete(() async{
 
           await tagCollection.doc(tagID).set({

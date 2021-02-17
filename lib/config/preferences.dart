@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Preferences {
   static User currentUser;
   static String uid;
+  static bool isAdmin;
 
   static String tagID;
 

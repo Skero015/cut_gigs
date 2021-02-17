@@ -3,6 +3,7 @@ import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/models/Preferences.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/auth_screens/LoginScreen.dart';
+import 'package:cut_gigs/services/database_services.dart';
 import 'package:cut_gigs/services/notification_services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Preferences.institutionPref = institutionElement.preference;
       }).then((value) async {
 
-
+        DatabaseService(uid: Preferences.uid).getPriveledgeBool();
       Navigator.of(context).pop();
 
       if(Preferences.currentUser == null){
