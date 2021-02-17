@@ -122,7 +122,7 @@ class _TagScreenState extends State<TagScreen> {
                                   borderRadius: BorderRadius.only(topLeft:Radius.circular(22.0),topRight:Radius.circular(22.0)),
                                   child: GestureDetector(
                                     child: Image(
-                                      image: AssetImage('images/EventImage.png'),
+                                      image: NetworkImage(eventNotifier.currentEvent.image),
                                       height: 237,
                                       //width: 580,
                                       fit: BoxFit.cover,

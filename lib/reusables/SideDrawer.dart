@@ -143,7 +143,7 @@ class SideDrawerCategory extends StatelessWidget {
           case "Host Login":
 
             if(Preferences.isAdmin){
-
+              Preferences.reason = "scan";
               Navigator.of(context).push(new MaterialPageRoute(
                   builder: (BuildContext context) => new SearchScreen()));
             }else{

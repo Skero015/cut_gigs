@@ -19,6 +19,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   String _tagID;
   String _attendeeID;
   String name;
+  bool hasScanned = false;
 
   EventNotifier eventNotifier;
 
@@ -29,16 +30,23 @@ class _ScannerScreenState extends State<ScannerScreen> {
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
 
     scanQR().then((value) => {
-      FirebaseFirestore.instance.collection('Tags').doc(_tagID).get().then((value) {
+
+      _tagID != "-1" ? FirebaseFirestore.instance.collection('Tags').doc(_tagID).get().then((value) {
         _attendeeID = value['attendeeID'];
+        print('attendeeID: $_attendeeID');
         FirebaseFirestore.instance.collection('Events').doc(eventNotifier.currentEvent.eventID).collection('Attendees').doc(_attendeeID).update({
           'hasAttended' : true,
         }).whenComplete(() {
           FirebaseFirestore.instance.collection('Users').doc(_attendeeID).get().then((value) {
-            name = value['name'];
+
+            setState(() {
+              name = value['name'];
+              hasScanned = true;
+            });
+            print('name: $name');
           });
         });
-      })
+      }) : print('scan cancelled')
     });
   }
 
@@ -104,7 +112,29 @@ class _ScannerScreenState extends State<ScannerScreen> {
                           Padding(
                             padding: const EdgeInsets.only(top: 40.0),
                             child: Center(
-                              child: Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                              child: GestureDetector(
+                                  child: Text( 'Scan',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                                  onTap: () {
+                                    scanQR().then((value) {
+                                      _tagID != "-1" ? FirebaseFirestore.instance.collection('Tags').doc(_tagID).get().then((value) {
+                                        _attendeeID = value['attendeeID'];
+                                        print('attendeeID: $_attendeeID');
+                                        FirebaseFirestore.instance.collection('Events').doc(eventNotifier.currentEvent.eventID).collection('Attendees').doc(_attendeeID).update({
+                                          'hasAttended' : true,
+                                        }).whenComplete(() {
+                                          FirebaseFirestore.instance.collection('Users').doc(_attendeeID).get().then((value) {
+
+                                            setState(() {
+                                              name = value['name'];
+                                              hasScanned = true;
+                                            });
+                                            print('name: $name');
+                                          });
+                                        });
+                                      }) : print('scan cancelled');
+                                    });
+                                  },
+                              ),
                             ),
                           ),
                           SizedBox(height: 40,),
@@ -116,12 +146,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ),
               Row(
                 children: [
-                  Text( 'Name: $name',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                  hasScanned ? Text( 'Name: $name',style: pageHeadingTextStyle,textAlign: TextAlign.center,) : Container(),
                 ],
               ),
               Row(
                 children: [
-                  Text( 'Tag ID: $_tagID',style: pageHeadingTextStyle,textAlign: TextAlign.center,),
+                  hasScanned ? Text( 'Tag ID: $_tagID',style: pageHeadingTextStyle,textAlign: TextAlign.center,) : Container(),
                 ],
               ),
             ],
@@ -148,6 +178,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     setState(() {
       _tagID = barcodeScanRes;
+
+      if(_tagID == "-1"){
+        hasScanned = false;
+      }
     });
   }
 }

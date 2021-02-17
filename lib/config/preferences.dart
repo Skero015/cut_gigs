@@ -50,4 +50,6 @@ class Preferences {
     preferences = await SharedPreferences.getInstance();
     preferences.setBool("notifications", switchStatus);
   }
+
+  static String reason = "none";
 }

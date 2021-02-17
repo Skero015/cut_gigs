@@ -19,8 +19,9 @@ class UpcomingEventsCard extends StatefulWidget {
   int index;
   BuildContext context;
   EventNotifier eventNotifier;
+  String reason;
 
-  UpcomingEventsCard({this.snapshot, this.index, this.context, this.eventNotifier});
+  UpcomingEventsCard({this.snapshot, this.index, this.context, this.eventNotifier, this.reason});
   @override
   _UpcomingEventsCardState createState() => _UpcomingEventsCardState();
 }
@@ -53,7 +54,7 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
         print(widget.eventNotifier.currentEvent.eventID + " selected");
 
         print('context: ' + widget.context.toString());
-        if(Preferences.isAdmin && widget.context.toString().contains('SearchScreen')){
+        if(Preferences.isAdmin && widget.context.toString().contains('SearchScreen') && Preferences.reason.toLowerCase() == "scan"){
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => ScannerScreen()));
         }else{
           if(widget.snapshot.data[widget.index].password.toString().trim().isNotEmpty){
