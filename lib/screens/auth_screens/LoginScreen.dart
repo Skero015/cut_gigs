@@ -1,10 +1,12 @@
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/validators.dart';
+import 'package:cut_gigs/models/Preferences.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/reusables/Dialogs.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/auth_screens/RegisterScreen.dart';
 import 'package:cut_gigs/services/auth_services.dart';
+import 'package:cut_gigs/services/database_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -296,10 +298,19 @@ class _LoginScreenState extends State<LoginScreen> {
           if(auth.currentUser != null)
             Preferences.currentUser = auth.currentUser;
           Preferences.uid = auth.currentUser.uid;
+
+          await getPreferences().then((value) {
+            Preference institutionElement;
+            institutionElement = value.firstWhere((element) => element.type == "Institution");
+            Preferences.institutionPref = institutionElement.preference;
+          }).then((value) {
+            DatabaseService(uid: Preferences.uid).getPriveledgeBool();
+
+            Navigator.of(context).pop();
+            Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) => new CustomNavBar(index: 1,)));
+          });
           //retrieve data from database using async
-          Navigator.of(context).pop();
-          Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => new CustomNavBar(index: 1,)));
 
           //dispose();
           //deactivate();

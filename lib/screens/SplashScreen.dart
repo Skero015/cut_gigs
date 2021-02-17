@@ -32,27 +32,27 @@ class _SplashScreenState extends State<SplashScreen> {
         print("Heyyyyy" + e.toString());
       }
 
-      await getPreferences().then((value) {
-        Preference institutionElement;
-        institutionElement = value.firstWhere((element) => element.type == "Institution");
-        Preferences.institutionPref = institutionElement.preference;
-      }).then((value) async {
-
-        DatabaseService(uid: Preferences.uid).getPriveledgeBool();
-      Navigator.of(context).pop();
-
       if(Preferences.currentUser == null){
+        Navigator.of(context).pop();
       Navigator.of(context).push(new MaterialPageRoute(
       builder: (BuildContext context) =>
       new LoginScreen()));
       }else{
-      Navigator.of(context).push(new MaterialPageRoute(
-      builder: (BuildContext context) =>
-      new CustomNavBar(index: 1,)));
+        await getPreferences().then((value) {
+          Preference institutionElement;
+          institutionElement = value.firstWhere((element) => element.type == "Institution");
+          Preferences.institutionPref = institutionElement.preference;
+        }).then((value){
+
+          DatabaseService(uid: Preferences.uid).getPriveledgeBool();
+          Navigator.of(context).pop();
+          Navigator.of(context).push(new MaterialPageRoute(
+              builder: (BuildContext context) =>
+              new CustomNavBar(index: 1,)));
+        });
+
       }
       });
-
-    });
 
     super.initState();
   }
