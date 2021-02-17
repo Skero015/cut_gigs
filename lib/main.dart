@@ -1,5 +1,6 @@
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/notifiers/institution_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:cut_gigs/screens/SplashScreen.dart';
@@ -23,6 +24,9 @@ void main() async => {
         ChangeNotifierProvider(
           create: (context) => EventNotifier(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => InstitutionNotifier(),
+        ),
       ],
       child: MyApp())),
   )
@@ -40,9 +44,10 @@ class MyApp extends StatelessWidget {
 
       await Firebase.initializeApp().then((value) {
         final FirebaseAuth auth = FirebaseAuth.instance;
-        if(auth.currentUser != null)
+        if(auth.currentUser != null){
           Preferences.currentUser = auth.currentUser;
           Preferences.uid = auth.currentUser.uid;
+        }
       });
     });
 

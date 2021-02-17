@@ -110,7 +110,7 @@ class _FeaturedEventsCardState extends State<FeaturedEventsCard> {
                         children: <Widget>[
                           Text(widget.snapshot.data[widget.index].title,style: featuredCardTitleTextStyle, overflow: TextOverflow.ellipsis),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Text(widget.snapshot.data[widget.index].location,style: featuredCardVenueTextStyle,),
                               SizedBox(width: 50,),

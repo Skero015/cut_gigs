@@ -35,10 +35,9 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-
+    print(widget.filterName);
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
-    //futureList = getEvents(context, eventNotifier);
-    Firebase.initializeApp();
+    futureList = getEventsByCategory(context, eventNotifier, widget.filterName);
     _tabController = new TabController(length: 2, vsync: this);
   }
   @override
@@ -132,9 +131,9 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
               ),
             ),
             Expanded(
-              child: StreamBuilder(
+              child: FutureBuilder(
                 initialData: [],
-                stream: Stream.fromFuture(getEventsByCategory(context, eventNotifier, widget.filterName)),
+                future: futureList,
                 builder: (context,snapshot){
                   return snapshot.connectionState == ConnectionState.done && snapshot.data != null? SizedBox(
                     child:TabBarView(
@@ -162,6 +161,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                           scrollDirection: Axis.vertical,
                           itemCount: snapshot.data.length,
                           itemBuilder: (BuildContext context, int index){
+                            eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date.millisecondsSinceEpoch);
                             return index == 0 ? Padding(
                               padding: const EdgeInsets.fromLTRB( 10.0, 42.0, 10.0 , 13.0),
                               child:date.isAfter(eventDate)?  EventSummaryCard(context: context, snapshot: snapshot, index: index, eventNotifier: eventNotifier,) : Container(),

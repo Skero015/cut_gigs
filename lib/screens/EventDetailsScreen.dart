@@ -24,6 +24,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 
 class EventDetailsScreen extends StatefulWidget {
+
+  bool isSubscribed;
+  EventDetailsScreen({this.isSubscribed});
   @override
   _EventDetailsScreenState createState() => _EventDetailsScreenState();
 }
@@ -322,7 +325,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
                                 controller: _tabController,
                                 children: [
                                   eventNotifier.currentEvent.locationLongitude.trim().isNotEmpty ? MapContainer() : Container(),
-                                  eventNotifier.currentEvent.mapPDF.trim().isNotEmpty ? Row(
+                                  eventNotifier.currentEvent.mapPDF != null || eventNotifier.currentEvent.mapPDF.trim().isNotEmpty ? Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -393,7 +396,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
               },
             ),
           ),
-          Positioned(
+          widget.isSubscribed == null ? Positioned(
               bottom: 0,
               left: 0,
               right: 0,
@@ -427,7 +430,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
                   padding: const EdgeInsets.all(0.0),
                 ),
               ),
-          ),
+          ): Container(),
         ],
       ),
     );
@@ -459,8 +462,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(heading, style: summaryHeadingTextStyle,),
-            Text(subHeading, style: summarySubheadingTextStyle,),
+            Text(heading, style: summaryHeadingTextStyle, softWrap: true, overflow: TextOverflow.visible,),
+            Text(subHeading, style: summarySubheadingTextStyle, softWrap: true, overflow: TextOverflow.ellipsis,),
           ],
         ),
       ],

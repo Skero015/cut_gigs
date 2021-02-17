@@ -128,7 +128,7 @@ class _TagScreenState extends State<TagScreen> {
                                       fit: BoxFit.cover,
                                     ),
                                     onTap: () {
-                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen(isSubscribed: true,)));
                                     },
                                   ),
                                 ),

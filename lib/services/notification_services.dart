@@ -3,6 +3,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
+import 'package:cut_gigs/reusables/SnackBars.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:cut_gigs/config/preferences.dart';
@@ -10,6 +13,7 @@ import 'package:cut_gigs/screens/HomeScreen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flash/flash.dart';
 
 class PushService {
 
@@ -38,45 +42,44 @@ class PushService {
     }
   }
 
-  Future initialisePushService() async {
+  Future initialisePushService(BuildContext context) async {
 
     if(Platform.isIOS)
     {
 
       fcm.requestNotificationPermissions(IosNotificationSettings(sound: false, badge: true, alert: true));
-    }else{
-
     }
 
+    fcm.subscribeToTopic('Events');
     fcm.configure(
       //when app is in foreground and we receive a push notification
       onMessage: (Map<String, dynamic> message) async {
         print('onMessage: $message');
+        showTopFlash(context: context);
       },
       onBackgroundMessage: Platform.isIOS ? null : myBackgroundMessageHandler,
       //when app is closed completely and its opened from push notification
       onLaunch: (Map<String, dynamic> message) async {
-        print('onLaunch: $message');
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomNavBar(index: 0,)));
       },
       //when app is in background and its opened from push notification
       onResume: (Map<String, dynamic> message) async {
         print('onResume: $message');
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomNavBar(index: 0,)));
       },
     );
 
-    fcm.getToken().then((String token) {
+    fcm.getToken().then((String token) async{
 
       //assert(token != null);
       Preferences.fcmToken = token;
 
       if(token != null){
 //save token
-        var tokenRef = FirebaseFirestore.instance.collection('Users')
+        await FirebaseFirestore.instance.collection('Users')
             .doc(Preferences.uid)
             .collection('Tokens')
-            .doc(token);
-
-        tokenRef.set({
+            .doc(token).set({
           'token' : token,
           'createdAt' : FieldValue.serverTimestamp(),
           'platform' : Platform.operatingSystem,

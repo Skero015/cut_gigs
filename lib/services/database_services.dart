@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/models/Category.dart';
 import 'package:cut_gigs/models/Favourite.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
@@ -17,7 +18,6 @@ class DatabaseService {
   final String uid;
   Api _api = Api('Users');
   DatabaseService({this.uid, this.context});
-  String orderNumber;
 
 //Collection Reference
   final CollectionReference userCollection =
@@ -41,13 +41,23 @@ class DatabaseService {
       'title':title,
       "country": country,
       'isAdmin' : false,
-      'isHost' : false,
+    }).whenComplete(() => {
+      userCollection.doc(uid).collection('Preferences').doc('Institution').set({
+        'type' : 'Institution',
+        'preference' : 'All',
+      })
     });
   }
 
   Future addUserphone(String phoneNumber ) async {
     return await userCollection.doc(uid).update({
       'phoneNumber': phoneNumber
+    });
+  }
+
+  Future getPriveledgeBool() async {
+    FirebaseFirestore.instance.collection('Users').doc(uid).get().then((value) {
+      Preferences.isAdmin = value['isAdmin'];
     });
   }
 
@@ -61,7 +71,7 @@ class DatabaseService {
           });
         }else{
           return await userCollection.doc(uid).collection('Events').doc(eventID).set({
-            'eventID' : isFavourite,
+            'eventID' : eventID,
             'isFavourite' : isFavourite,
             'tagID' : "",
           });
@@ -161,17 +171,34 @@ class DatabaseService {
         await eventCollection.doc(eventNotifier.currentEvent.eventID).collection('Attendees').doc(uid).set({
           'userID' : uid,
           'tagID' : tagID,
+          'hasAttended' : false,
         }).whenComplete(() async{
 
           await tagCollection.doc(tagID).set({
             'attendeeID': uid,
             'tagID': tagID,
             'eventID': eventNotifier.currentEvent.eventID,
+          }).whenComplete(() async{
+            await eventCollection.doc(eventNotifier.currentEvent.eventID).collection('Tokens').doc(Preferences.fcmToken).set({
+              'token': Preferences.fcmToken,
+            });
           });
         });
       });
 
     }catch(e){
+      print(e.toString());
+    }
+  }
+
+  Future updatePreferences(String preferencesID, {String institutionID}) async {
+
+    try{
+      await userCollection.doc(uid).collection('Preferences').doc(preferencesID).set({
+        'type' : institutionID != null ? "Institution" : "",
+        'preference': institutionID != null ? institutionID : "",
+      });
+    }catch(e) {
       print(e.toString());
     }
   }

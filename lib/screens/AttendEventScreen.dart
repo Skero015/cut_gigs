@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:add_2_calendar/add_2_calendar.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/config/validators.dart';
@@ -21,7 +24,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_mailer/flutter_mailer.dart';
+import 'package:mailgun/mailgun.dart';
+import 'package:add_2_calendar/add_2_calendar.dart' as Event;
+
 
 class AttendEventScreen extends StatefulWidget {
   @override
@@ -48,12 +53,23 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
   bool _autoValidate = false;
   bool _isBusyDialogVisible = false;
 
+  final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+    'sendSpeakerRequestEmail',
+  );
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  User user = FirebaseAuth.instance.currentUser;
+
+  MailgunMailer mailgun;
+
   @override
   void initState() {
     super.initState();
     myFocusNode = FocusNode();
 
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
+    mailgun = MailgunMailer(domain: "sandbox34d37e7bfbd24187b015203924961775.mailgun.org", apiKey: "3b0190bdd2a5bb14a194d1884bdee0cb-4de08e90-c78c9fa0");
   }
 
   @override
@@ -371,6 +387,7 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
                                       }
                                     });
 
+                                    addToCalendar();
                                     if(attendee == 'Speaker'){
 
                                       await DatabaseService(uid: Preferences.uid).uploadSpeakerImage(eventNotifier, Preferences.uid, _imageFile != null ? File(_imageFile.path) : null).then((value) async{
@@ -487,6 +504,27 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
 
     final bool gmailinstalled =  await DeviceApps.isAppInstalled(GMAIL_SCHEMA);
 
+    var response = await mailgun.send(
+        from: Preferences.currentUser.displayName + ' <' + Preferences.currentUser.email + '>',
+        to: ['osamgroupt@gmail.com',],
+        subject:'Speaker Request From: ' + Preferences.currentUser.displayName,
+        html: 'Dear Management, <br> I, ' + Preferences.currentUser.displayName + ', am requesting to be a speaker at the ' + eventNotifier.currentEvent.title + ' event, hosted at ' +
+            eventNotifier.currentEvent.venue + '. <br><br>'
+            'Topic: ' + topicDropdownValue +
+            '<br>Company Name:' + _companyName.text.trim()  +
+            '<br>Position:' + _position.text.trim() +
+            '<br><br>Contact:' + Preferences.currentUser.email,);
+
+    print(response.message);
+    print(response.status.toString());
+
+    /*return callable.call({
+      'email' : Preferences.currentUser.email,
+      'text': 'Sending email with Flutter and SendGrid is fun!',
+      'subject': 'Speaker Email from Flutter App'
+    }).then((res) => print(res.data));
+
+
     final MailOptions mailOptions = MailOptions(
       body: 'Dear Management, <br> I would love to be a speaker at the ' + eventNotifier.currentEvent.title + ' event, hosted at ' +
           eventNotifier.currentEvent.venue + '. <br><br>'
@@ -500,7 +538,20 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
       attachments: [ 'path/to/image.png', ],
       appSchema: gmailinstalled ? GMAIL_SCHEMA : null,
     );
-    await FlutterMailer.send(mailOptions);
+    await FlutterMailer.send(mailOptions);*/
+
+    /*Future<http.Response> createAlbum(String title) {
+      return http.post(
+        Uri.https('jsonplaceholder.typicode.com', 'albums'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Access-Control-Allow-Origin' : '*',
+        },
+        body: jsonEncode(<String, String>{
+          'title': title,
+        }),
+      );
+    }*/
   }
 
   Widget bottomsheet() {
@@ -576,5 +627,17 @@ class _AttendEventScreenState extends State<AttendEventScreen> {
     }
     String saltStr = salt.toString();
     return saltStr;
+  }
+
+  void addToCalendar() {
+
+    Event.Event calendarEvent = Event.Event(
+      title: eventNotifier.currentEvent.title,
+      description: eventNotifier.currentEvent.about,
+      location: eventNotifier.currentEvent.venue,
+      startDate: DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date.millisecondsSinceEpoch),
+      endDate: DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.endDate.millisecondsSinceEpoch),
+    );
+    Add2Calendar.addEvent2Cal(calendarEvent);
   }
 }

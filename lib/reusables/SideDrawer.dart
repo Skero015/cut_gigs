@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/reusables/Dialogs.dart';
+import 'package:cut_gigs/screens/SearchScreen.dart';
+import 'package:cut_gigs/screens/SettingsScreen.dart';
 import 'package:cut_gigs/screens/WebViewScreen.dart';
-import 'package:cut_gigs/screens/auth_screens/LoginScreen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,11 +17,10 @@ class SideDrawer extends StatefulWidget {
 }
 
 class _SideDrawerState extends State<SideDrawer> {
-  FirebaseAuth auth;
+
   @override
   void initState() {
     super.initState();
-    auth = FirebaseAuth.instance;
 
   }
   @override
@@ -77,7 +77,7 @@ class _SideDrawerState extends State<SideDrawer> {
                     SizedBox(height: 120,),
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
-                      child: SideDrawerCategory('Edit Profile','images/drawer_icons/EditIcon.png', auth),
+                      child: SideDrawerCategory('Edit Profile','images/drawer_icons/EditIcon.png'),
                     ),
                     SizedBox(height: 16,),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
@@ -90,16 +90,21 @@ class _SideDrawerState extends State<SideDrawer> {
                     SizedBox(height: 52,),*/
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
-                      child: SideDrawerCategory('Help','images/drawer_icons/HelpIcon.png', auth),
+                      child: SideDrawerCategory('Help','images/drawer_icons/HelpIcon.png'),
                     ),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                     SizedBox(height: 53,),
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
-                      child: SideDrawerCategory('Logout','images/drawer_icons/LoginIcon.png', auth),
+                      child: SideDrawerCategory('Host Login','images/drawer_icons/LoginIcon.png'),
                     ),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
-
+                    SizedBox(height: 53,),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30),
+                      child: SideDrawerCategory('Settings','images/drawer_icons/LoginIcon.png'),
+                    ),
+                    Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                   ],
                 ),
             ),
@@ -113,8 +118,7 @@ class _SideDrawerState extends State<SideDrawer> {
 class SideDrawerCategory extends StatelessWidget {
 
   String title = "", imagePath = "";
-  FirebaseAuth auth;
-  SideDrawerCategory(this.title, this.imagePath, this.auth);
+  SideDrawerCategory(this.title, this.imagePath);
 
   @override
   Widget build(BuildContext context) {
@@ -136,10 +140,28 @@ class SideDrawerCategory extends StatelessWidget {
             const url = 'https://www.cut.ac.za/contact-us';
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => WebviewScreen(url)));
             break;
-          case "Logout":
-            auth.signOut();
-            Navigator.of(context).push(new MaterialPageRoute(
-                builder: (BuildContext context) => new LoginScreen()));
+          case "Host Login":
+
+            if(Preferences.isAdmin){
+
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new SearchScreen()));
+            }else{
+              showDialog(context: context,
+                  builder: (BuildContext context){
+                    return MainDialogBox(
+                      title: "Contact Support",
+                      descriptions: "You are not authorized to login as a host. Please contact support.",
+                      buttonText: "Return",
+                    );
+                  }
+              );
+            }
+
+            break;
+          case "Settings":
+          Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) => new SettingsScreen()));
             break;
         }
       },
