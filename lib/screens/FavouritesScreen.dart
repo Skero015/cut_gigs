@@ -29,6 +29,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
     super.initState();
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
     getCategoryFuture = getCategories();
+    Preferences.currentContext = context;
   }
 
   @override

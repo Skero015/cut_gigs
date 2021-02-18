@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       addInstitutionList(institutionNotifier);
       bool visitingFlag = await Preferences.getVisitingFlag();
       //Preferences.setVisitedFlag();
-      showTopFlash(context: context, title: 'Test Title', message: 'A test message with a test title at top');
+      //showTopFlash(context: context, title: 'Test Title', message: 'A test message with a test title at top');
       if(visitingFlag){
 
       }
