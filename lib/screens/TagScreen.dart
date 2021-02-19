@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
@@ -27,13 +28,22 @@ class _TagScreenState extends State<TagScreen> {
   @override
   void initState() {
     super.initState();
-    disableCapture();
+    //disableCapture();
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
     eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date.millisecondsSinceEpoch);
   }
 
   Future<void> disableCapture() async {
     await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  }
+
+  Future<void> enableCapture() async {
+    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+  }
+  @override
+  void dispose() {
+    super.dispose();
+
   }
 
   @override
@@ -75,7 +85,8 @@ class _TagScreenState extends State<TagScreen> {
                                       letterSpacing: 0.8)),
                             ],
                           ),
-                          onTap: () {
+                          onTap: () async{
+                            await enableCapture();
                             Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomNavBar(index: 0,)));
                           },
                         ),
@@ -174,7 +185,7 @@ class _TagScreenState extends State<TagScreen> {
                                 SizedBox(height: 50,),
                                 Center(
                                   child: QrImage(
-                                      data: eventNotifier.currentEvent.tagID,
+                                      data: Preferences.tagID,
                                     version: 2,
                                     size: 320,
                                     embeddedImage: AssetImage('images/AppBar.png'),

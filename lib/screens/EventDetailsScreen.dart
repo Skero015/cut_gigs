@@ -96,7 +96,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> with SingleTick
     formatter = DateFormat.yMMMd('en_US');
     eventDate = DateTime.fromMillisecondsSinceEpoch(eventNotifier.currentEvent.date.millisecondsSinceEpoch);
 
-    PDFDocument.fromURL(eventNotifier.currentEvent.mapPDF).then((value) {
+    PDFDocument.
+    fromURL(eventNotifier.currentEvent.mapPDF).then((value) {
       mapDoc = value;
     });
     PDFDocument.fromURL(eventNotifier.currentEvent.mealPDF).then((value) {
