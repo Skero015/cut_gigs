@@ -2,12 +2,15 @@ import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/models/Category.dart';
 import 'package:cut_gigs/models/Event.dart';
+import 'package:cut_gigs/models/Institution.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
+import 'package:cut_gigs/notifiers/institution_notifier.dart';
 import 'package:cut_gigs/reusables/CategoryCard.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/reusables/FeaturedEventsCard.dart';
 import 'package:cut_gigs/reusables/SearchWidget.dart';
 import 'package:cut_gigs/reusables/SideDrawer.dart';
+import 'package:cut_gigs/reusables/SnackBars.dart';
 import 'package:cut_gigs/reusables/UpcomingEventsCard.dart';
 import 'package:cut_gigs/services/database_services.dart';
 import 'package:cut_gigs/services/notification_services.dart';
@@ -42,9 +45,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   DateTime date, eventDate;
 
   EventNotifier eventNotifier;
+  InstitutionNotifier institutionNotifier;
 
   Stream eventChanges;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  List<DropdownMenuItem<String>> institutionDropdownList = [];
+  String institutionDropdownValue = "";
+
+  void addInstitutionList(InstitutionNotifier institutionNotifier) async{
+    institutionDropdownList = [];
+    await getInstitutionList(institutionNotifier).then((value) {
+      institutionNotifier.institutionList.forEach((element) {
+        if(!institutionDropdownList.contains(element.id))
+          institutionDropdownList.add(new DropdownMenuItem(child: Text(element.name), value: element.id));
+        print(element.id + " added");
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -55,10 +73,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
       eventNotifier = Provider.of<EventNotifier>(context, listen: false);
-
+      institutionNotifier = Provider.of<InstitutionNotifier>(context, listen: false);
+      addInstitutionList(institutionNotifier);
       bool visitingFlag = await Preferences.getVisitingFlag();
       //Preferences.setVisitedFlag();
-
+      //showTopFlash(context: context, title: 'Test Title', message: 'A test message with a test title at top');
       if(visitingFlag){
 
       }
@@ -67,23 +86,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     getCategoryFuture = getCategories();
 
     _tabController = new TabController(length: 2, vsync: this);
+
+    Preferences.currentContext = context;
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-
-    eventChanges.drain();
-  }
   @override
   Widget build(BuildContext context) {
 
     date = DateTime.now();
-
-    Stream streamer(String widgetName) {
-      return eventChanges = Stream.fromFuture(getEvents(context, eventNotifier, widgetName));
-    }
-
     //showNotification("Random Title", "random title", context);
 
     return Scaffold(
@@ -158,10 +168,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 18.0),
                       child: StreamBuilder(
-                        stream: streamer("Featured Events"),
+                        stream: Stream.fromFuture(getFeaturedEvents(context, eventNotifier)),
                         builder: (context, snapshot) {
-                          print("snapshot for featured events is now: " + snapshot.connectionState.toString());
-                          print(snapshot.hasData);
                           return snapshot.connectionState == ConnectionState.done && snapshot.data != null ?
                           SizedBox(
                             height: 370,
@@ -171,10 +179,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   //print("event is featured: " + snapshot.data[index].isPriority.toString());
                                   return snapshot.data[index].isPriority ? FeaturedEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier,) : Container();
                                 },
-                              itemCount: Preferences.featuredEventsCount - 1,
+                              itemCount: snapshot.data.length,
                               pagination: null,
                               control: null,
-                              autoplay: Preferences.featuredEventsCount > 1 ? true : false,
+                              autoplay: snapshot.data.length > 1 ? true : false,
                               layout: SwiperLayout.STACK,
                               itemWidth: MediaQuery.of(context).size.width,
                               duration: 800,
@@ -200,9 +208,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     SizedBox(height: 5.0,),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                      child: FutureBuilder(
+                      child: StreamBuilder(
                         initialData: [],
-                        future: getEvents(context, eventNotifier, "Upcoming Events"),
+                        stream: Stream.fromFuture(getEvents(context, eventNotifier, 'widgetName')),
                         builder: (context, snapshot) {
                           return snapshot.connectionState == ConnectionState.done && snapshot.data != null ?
                           SizedBox(
@@ -217,10 +225,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   itemCount: snapshot.data.length,
                                   itemBuilder: (BuildContext context, int index){
                                     eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date.millisecondsSinceEpoch);
-                                    eventAsync = snapshot;
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
-                                      child: date.isBefore(eventDate) ? UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier) : Container(),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+                                      child: date.isBefore(eventDate) ? Padding(
+                                        padding: const EdgeInsets.only(top: 25.0),
+                                        child: UpcomingEventsCard(snapshot: snapshot, index: index, eventNotifier: eventNotifier),
+                                      ) : Container(),
                                     );
                                   },
                                 ),

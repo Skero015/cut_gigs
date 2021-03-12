@@ -36,12 +36,11 @@ Future<List> getInstitutionList(InstitutionNotifier institutionNotifier) async {
       .collection('Institutions')
       .get();
 
-  List<dynamic> institutionList = [];
+  List<Institution> institutionList = [];
 
   snapshot.docs.forEach((element) {
     Institution institution = Institution.fromMap(element.data());
     institutionList.add(institution);
-    print(institution.name);
   });
 
   institutionNotifier.institutionList = institutionList;

@@ -9,7 +9,7 @@ class InstitutionNotifier with ChangeNotifier {
 
   UnmodifiableListView<Institution> get institutionList => UnmodifiableListView(_institutionList);
 
-  //gets the event that has been selected, this data can be used anywhere in the app
+  //gets the institution that has been selected, this data can be used anywhere in the app
   Institution get currentInstitution => _currentInstitution;
 
   set institutionList(List<Institution> institutionList) {

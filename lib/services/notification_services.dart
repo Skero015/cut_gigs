@@ -55,7 +55,7 @@ class PushService {
       //when app is in foreground and we receive a push notification
       onMessage: (Map<String, dynamic> message) async {
         print('onMessage: $message');
-        showTopFlash(context: context);
+        showTopFlash(context: Preferences.currentContext, title: message['title'], message: message['message']);
       },
       onBackgroundMessage: Platform.isIOS ? null : myBackgroundMessageHandler,
       //when app is closed completely and its opened from push notification

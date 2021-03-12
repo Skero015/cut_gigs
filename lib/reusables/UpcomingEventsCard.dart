@@ -4,6 +4,7 @@ import 'package:cut_gigs/models/Event.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
 import 'package:cut_gigs/reusables/Dialogs.dart';
 import 'package:cut_gigs/screens/EventDetailsScreen.dart';
+import 'package:cut_gigs/screens/host_screens/ScannerScreen.dart';
 import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +19,9 @@ class UpcomingEventsCard extends StatefulWidget {
   int index;
   BuildContext context;
   EventNotifier eventNotifier;
+  String reason;
 
-  UpcomingEventsCard({this.snapshot, this.index, this.context, this.eventNotifier});
+  UpcomingEventsCard({this.snapshot, this.index, this.context, this.eventNotifier, this.reason});
   @override
   _UpcomingEventsCardState createState() => _UpcomingEventsCardState();
 }
@@ -51,23 +53,28 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
         widget.eventNotifier.currentEvent = widget.snapshot.data[widget.index];
         print(widget.eventNotifier.currentEvent.eventID + " selected");
 
-        if(widget.snapshot.data[widget.index].password.toString().trim().isNotEmpty){
-
-          showDialog(context: context,
-              builder: (BuildContext context){
-                return CommunicationDialogBox(
-                  title: "Enter Event Password",
-                  snapshot: widget.snapshot,
-                  index: widget.index,
-                  buttonText: "Continue",
-                );
-              }
-          );
-
+        print('context: ' + widget.context.toString());
+        if(Preferences.isAdmin && widget.context.toString().contains('SearchScreen') && Preferences.reason.toLowerCase() == "scan"){
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ScannerScreen()));
         }else{
+          if(widget.snapshot.data[widget.index].password.toString().trim().isNotEmpty){
 
-          print('moving to eventDetails');
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
+            showDialog(context: context,
+                builder: (BuildContext context){
+                  return CommunicationDialogBox(
+                    title: "Enter Event Password",
+                    snapshot: widget.snapshot,
+                    index: widget.index,
+                    buttonText: "Continue",
+                  );
+                }
+            );
+
+          }else{
+
+            print('moving to eventDetails');
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailsScreen()));
+          }
         }
 
       },
@@ -84,12 +91,12 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
                 new BoxShadow(
                   color: Colors.grey[800],
                   offset: Offset(2.0, 7.0),
-                  blurRadius: 15.0,
+                  blurRadius: 5.0,
                 ),
                 new BoxShadow(
                   color: Colors.white,
                   offset: Offset(0, -14),
-                  blurRadius: 15.0,
+                  blurRadius: 5.0,
                 ),
               ],
               borderRadius: BorderRadius.all(Radius.circular(25.0),),
@@ -141,14 +148,16 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
                             fit: BoxFit.fitHeight,
                           ),
                           SizedBox(width: 10,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: <Widget>[
-                              Text(widget.snapshot.data[widget.index].venue,style: venueCardTextStyle,),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 110.0),
-                                child: GestureDetector(
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width - 275,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text(widget.snapshot.data[widget.index].venue,style: venueCardTextStyle,),
+                                Spacer(),
+                                GestureDetector(
                                   child: Image(
                                     image: isFavImgClicked ? AssetImage('images/LikedEvent.png') : AssetImage('images/unLikeEvent.png'),
                                     height: 40,
@@ -168,8 +177,8 @@ class _UpcomingEventsCardState extends State<UpcomingEventsCard> {
                                     print(isFavImgClicked);
                                   },
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),

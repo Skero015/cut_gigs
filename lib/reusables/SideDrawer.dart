@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
+import 'package:cut_gigs/reusables/Dialogs.dart';
+import 'package:cut_gigs/screens/SearchScreen.dart';
 import 'package:cut_gigs/screens/SettingsScreen.dart';
 import 'package:cut_gigs/screens/WebViewScreen.dart';
 import 'package:flutter/cupertino.dart';
@@ -92,11 +94,11 @@ class _SideDrawerState extends State<SideDrawer> {
                     ),
                     Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                     SizedBox(height: 53,),
-                    /*Padding(
+                    Padding(
                       padding: const EdgeInsets.only(left: 30),
                       child: SideDrawerCategory('Host Login','images/drawer_icons/LoginIcon.png'),
-                    ),*/
-                    //Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
+                    ),
+                    Divider(thickness: 0.5, color: Colors.black, indent: 5, endIndent: 10,),
                     SizedBox(height: 53,),
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
@@ -139,8 +141,23 @@ class SideDrawerCategory extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => WebviewScreen(url)));
             break;
           case "Host Login":
-          /*Navigator.of(context).push(new MaterialPageRoute(
-                builder: (BuildContext context) => new EditProfileScreen()));*/
+
+            if(Preferences.isAdmin){
+              Preferences.reason = "scan";
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new SearchScreen()));
+            }else{
+              showDialog(context: context,
+                  builder: (BuildContext context){
+                    return MainDialogBox(
+                      title: "Contact Support",
+                      descriptions: "You are not authorized to login as a host. Please contact support.",
+                      buttonText: "Return",
+                    );
+                  }
+              );
+            }
+
             break;
           case "Settings":
           Navigator.of(context).push(new MaterialPageRoute(

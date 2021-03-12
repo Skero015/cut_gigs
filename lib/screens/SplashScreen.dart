@@ -1,7 +1,9 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cut_gigs/config/preferences.dart';
+import 'package:cut_gigs/models/Preferences.dart';
 import 'package:cut_gigs/reusables/CustomBottomNavBar.dart';
 import 'package:cut_gigs/screens/auth_screens/LoginScreen.dart';
+import 'package:cut_gigs/services/database_services.dart';
 import 'package:cut_gigs/services/notification_services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -23,32 +25,34 @@ class _SplashScreenState extends State<SplashScreen> {
 
   SystemChannels.textInput.invokeMethod('TextInput.hide');
 
-    Future.delayed(Duration(milliseconds: 2700), () async {
+    Future.delayed(Duration(milliseconds: 3100), () async {
       try{
-        PushService().initialisePushService(context).whenComplete(() {
-          print('done initializing push notifications');
-        });
+        PushService().initialisePushService(context);
       }catch(e){
         print("Heyyyyy" + e.toString());
       }
 
-      Navigator.of(context).pop();
-
       if(Preferences.currentUser == null){
-        Navigator.of(context).push(new MaterialPageRoute(
-            builder: (BuildContext context) =>
-            new LoginScreen()));
+        Navigator.of(context).pop();
+      Navigator.of(context).push(new MaterialPageRoute(
+      builder: (BuildContext context) =>
+      new LoginScreen()));
       }else{
-        print(Preferences.currentUser.uid);
-        print(Preferences.currentUser.displayName);
-        print(Preferences.currentUser.phoneNumber);
-        print(Preferences.currentUser.email);
-        Navigator.of(context).push(new MaterialPageRoute(
-            builder: (BuildContext context) =>
-            new CustomNavBar(index: 1,)));
-      }
+        await getPreferences().then((value) {
+          Preference institutionElement;
+          institutionElement = value.firstWhere((element) => element.type == "Institution");
+          Preferences.institutionPref = institutionElement.preference;
+        }).then((value){
 
-    });
+          DatabaseService(uid: Preferences.uid).getPriveledgeBool();
+          Navigator.of(context).pop();
+          Navigator.of(context).push(new MaterialPageRoute(
+              builder: (BuildContext context) =>
+              new CustomNavBar(index: 1,)));
+        });
+
+      }
+      });
 
     super.initState();
   }

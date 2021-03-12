@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cut_gigs/config/preferences.dart';
 import 'package:cut_gigs/config/styleguide.dart';
 import 'package:cut_gigs/models/Event.dart';
 import 'package:cut_gigs/notifiers/event_notifier.dart';
@@ -23,7 +24,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
 
   EventNotifier eventNotifier;
 
-  DateTime eventDate;
+  DateTime date, eventDate;
 
   @override
   void initState() {
@@ -31,9 +32,14 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
     eventNotifier = Provider.of<EventNotifier>(context, listen: false);
 
     _tabController = new TabController(length: 2, vsync: this);
+
+    Preferences.currentContext = context;
   }
   @override
   Widget build(BuildContext context) {
+
+    date = DateTime.now();
+
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKeyMyEvents,
@@ -122,13 +128,13 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
                           itemCount: snapshot.data.length,
                           itemBuilder: (BuildContext context, int index){
                             eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date.millisecondsSinceEpoch);
-                            return index == 0 ? Padding(
+                            return date.isBefore(eventDate) ? index == 0 ? Padding(
                               padding: const EdgeInsets.fromLTRB( 10.0, 42.0, 10.0 , 13.0),
                               child: eventSummaryCard(context, snapshot, index, eventNotifier),
                             ) : Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
                               child: eventSummaryCard(context, snapshot, index, eventNotifier),
-                            );
+                            ) : Container();
                           },
                         ),
                         ListView.builder(
@@ -138,13 +144,13 @@ class _MyEventsScreenState extends State<MyEventsScreen> with SingleTickerProvid
                           itemCount: snapshot.data.length,
                           itemBuilder: (BuildContext context, int index){
                             eventDate = DateTime.fromMillisecondsSinceEpoch(snapshot.data[index].date.millisecondsSinceEpoch);
-                            return index == 0 ? Padding(
+                            return date.isAfter(eventDate) ? index == 0 ? Padding(
                               padding: const EdgeInsets.fromLTRB( 10.0, 42.0, 10.0 , 13.0),
                               child: eventSummaryCard(context, snapshot, index, eventNotifier),
                             ) : Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
                               child: eventSummaryCard(context, snapshot, index, eventNotifier),
-                            );
+                            ) : Container();
                           },
                         ),
                       ],

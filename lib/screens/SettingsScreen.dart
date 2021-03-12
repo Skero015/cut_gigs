@@ -4,6 +4,7 @@ import 'package:cut_gigs/models/Institution.dart';
 import 'package:cut_gigs/notifiers/institution_notifier.dart';
 import 'package:cut_gigs/screens/auth_screens/LoginScreen.dart';
 import 'package:cut_gigs/services/auth_services.dart';
+import 'package:cut_gigs/services/database_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,28 +20,28 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   Auth auth;
   String institutionDropdownValue = "";
   InstitutionNotifier institutionNotifier;
-  List<DropdownMenuItem<String>> institutionDropdownList = [];
+  List<DropdownMenuItem<String>> institutionDropdownList;
   bool switchStatus = false;
 
-  void addInstitutionList(InstitutionNotifier institutionNotifier) async{
-    institutionDropdownList = [];
-
-    await getInstitutionList(institutionNotifier).then((value) {
-      institutionNotifier.institutionList.forEach((element) {
-        institutionDropdownList.add(new DropdownMenuItem(child: Text(element.name), value: element.id));
-      });
+  void addInstitutionList() async{
+    institutionDropdownList.add(new DropdownMenuItem(child: Text("All"), value: "All"));
+    institutionNotifier.institutionList.forEach((element) {
+      if(!institutionDropdownList.contains(element.id))
+      institutionDropdownList.add(new DropdownMenuItem(child: Text(element.name), value: element.id));
     });
   }
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      institutionNotifier = Provider.of<InstitutionNotifier>(context, listen: false);
-      addInstitutionList(institutionNotifier);
-      switchStatus = Preferences.getNotificationsFlag();
+    institutionDropdownList = [];
+    Preferences.getNotificationsFlag().then((value) {
+      switchStatus = value;
     });
+
+    institutionNotifier = Provider.of<InstitutionNotifier>(context, listen: false);
+    addInstitutionList();
+    print("switch status: " + switchStatus.toString());
   }
 
   @override
@@ -127,6 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   Padding(
                     padding: const EdgeInsets.only(left: 20, right: 20),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -134,27 +136,31 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         ),
                         DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
-                            value: institutionDropdownValue,
-                            icon: Padding(
-                              padding: const EdgeInsets.only(left: 475.0),
-                              child: Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.black,
-                                size: 60,
-                              ),
+                            value: institutionDropdownValue.trim().isNotEmpty ? institutionDropdownValue : null,
+                            icon: Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.black,
+                              size: 60,
                             ),
-                            items: institutionDropdownList,
-                            onChanged: (String newValue) {
+                            items: institutionDropdownList.toList(),
+                            onTap: (){
+                              print(institutionDropdownList.first.value);
+                            },
+                            onChanged: (String newValue) async{
                               setState(() {
                                 institutionDropdownValue = newValue;
-
-                                if(institutionDropdownValue.trim() != "All"){
-                                  institutionNotifier.currentInstitution = institutionNotifier.institutionList.singleWhere((element) => element.id == newValue);
-                                  Preferences.setInstitutionPref(institutionNotifier.currentInstitution.id);
-                                }else{
-                                  Preferences.setInstitutionPref("All");
-                                }
                               });
+
+                              if(institutionDropdownValue.trim().toLowerCase() != "all"){
+                                institutionNotifier.currentInstitution = institutionNotifier.institutionList.singleWhere((element) => element.id == newValue);
+                                Preferences.institutionPref = institutionNotifier.currentInstitution.name;
+                                await DatabaseService(uid: Preferences.uid).updatePreferences('Institution', institutionID: institutionNotifier.currentInstitution.name);
+                                Preferences.setInstitutionPref(institutionNotifier.currentInstitution.id);
+                              }else{
+                                Preferences.institutionPref = "All";
+                                await DatabaseService(uid: Preferences.uid).updatePreferences('Institution', institutionID: "All");
+                                Preferences.setInstitutionPref("All");
+                              }
                             },
                           ),
                         ),
@@ -174,12 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 onPressed: () async{
 
                   Navigator.of(context).pop();
-                  await auth.signOut().then((value) {
-                    print('success');
-
-                  }).catchError((onError){
-                    print(onError);
-                  });
+                  await auth.signOut();
                   Navigator.of(context).push(new MaterialPageRoute(
                       builder: (BuildContext context) => new LoginScreen()));
                 },//Ink widget here, is a child of the Button, learning more about it however...

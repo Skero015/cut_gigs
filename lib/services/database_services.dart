@@ -41,12 +41,23 @@ class DatabaseService {
       'title':title,
       "country": country,
       'isAdmin' : false,
+    }).whenComplete(() => {
+      userCollection.doc(uid).collection('Preferences').doc('Institution').set({
+        'type' : 'Institution',
+        'preference' : 'All',
+      })
     });
   }
 
   Future addUserphone(String phoneNumber ) async {
     return await userCollection.doc(uid).update({
       'phoneNumber': phoneNumber
+    });
+  }
+
+  Future getPriveledgeBool() async {
+    FirebaseFirestore.instance.collection('Users').doc(uid).get().then((value) {
+      Preferences.isAdmin = value['isAdmin'];
     });
   }
 
@@ -160,6 +171,7 @@ class DatabaseService {
         await eventCollection.doc(eventNotifier.currentEvent.eventID).collection('Attendees').doc(uid).set({
           'userID' : uid,
           'tagID' : tagID,
+          'hasAttended' : false,
         }).whenComplete(() async{
 
           await tagCollection.doc(tagID).set({
@@ -175,6 +187,33 @@ class DatabaseService {
       });
 
     }catch(e){
+      print(e.toString());
+    }
+  }
+
+  Future updatePreferences(String preferencesID, {String institutionID}) async {
+
+    try{
+      await userCollection.doc(uid).collection('Preferences').doc(preferencesID).set({
+        'type' : institutionID != null ? "Institution" : "",
+        'preference': institutionID != null ? institutionID : "",
+      });
+    }catch(e) {
+      print(e.toString());
+    }
+  }
+
+  Future postMessage(String message, String eventID) async {
+
+    try{
+      await eventCollection.doc(eventID).collection('Messages').doc().set({
+        'name' : Preferences.currentUser.displayName,
+        'senderID' : Preferences.uid,
+        'message' : message,
+        'createdAt' : DateTime.now(),
+        'isLiked' : false,
+      });
+    }catch(e) {
       print(e.toString());
     }
   }

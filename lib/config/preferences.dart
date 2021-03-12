@@ -1,21 +1,23 @@
 
 import 'package:cut_gigs/models/Event.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {
   static User currentUser;
   static String uid;
+  static bool isAdmin;
 
   static String tagID;
 
   static String fcmToken;
 
-  static int featuredEventsCount = 0;
-
   static List<Event> filteredEvents = <Event>[];
 
   static SharedPreferences preferences;
+
+  static String institutionPref;
 
   //when user visits app for the first time
   static getVisitingFlag() async {
@@ -40,7 +42,7 @@ class Preferences {
   }
 
   //whether the user wants to receive notifications or not
-  static getNotificationsFlag() async {
+  static Future<bool> getNotificationsFlag() async {
     preferences = await SharedPreferences.getInstance();
     bool notificationsFlag = preferences.getBool("notifications") ?? false;
     return notificationsFlag;
@@ -49,4 +51,7 @@ class Preferences {
     preferences = await SharedPreferences.getInstance();
     preferences.setBool("notifications", switchStatus);
   }
+
+  static String reason = "none";
+  static BuildContext currentContext;
 }

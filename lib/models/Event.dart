@@ -110,13 +110,32 @@ class Event {
 Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String widgetName) async{
   QuerySnapshot snapshots;
   DocumentSnapshot docSnapshot;
-  Preferences.featuredEventsCount = 0;
 
   List<Event> _eventList = [];
+
   print("context " + context.toString());
   try{
     print("getting fav events");
     await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
+
+      int eventsCounter = 0;
+      while(eventsCounter < value.length){
+        docSnapshot = await FirebaseFirestore.instance
+            .collection('Events')
+            .doc(value[eventsCounter].eventID)
+            .get();
+
+        if(value[eventsCounter].tagID.toString().trim().isNotEmpty){
+          FirebaseFirestore.instance
+              .collection('Events')
+              .doc(value[eventsCounter].eventID)
+              .collection('Tokens')
+              .doc(Preferences.fcmToken).set({
+            'token' : Preferences.fcmToken,
+          });
+        }
+        eventsCounter++;
+      }
 
       print('got fav events in user collection');
       if(context.toString().contains("FavouritesScreen") || context.toString().contains("MyEventsScreen")){
@@ -134,7 +153,6 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
           event.isFavourite = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).isFavourite;
           event.tagID = value.singleWhere((elmnt) => elmnt.eventID == event.eventID).tagID;
           _eventList.add(event);
-          print(event.eventID);
 
           if(value[i].tagID.toString().trim().isNotEmpty){
             FirebaseFirestore.instance
@@ -152,28 +170,33 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
         print('fav docs got');
       }else{
         print('inside else');
-        snapshots = await FirebaseFirestore.instance
-            .collection('Events')
-            .get();
 
+        print("institutionPref: " + Preferences.institutionPref);
+        if(Preferences.institutionPref.toLowerCase() == "all"){
+          snapshots = await FirebaseFirestore.instance
+              .collection('Events')
+              .get();
+        }else{
+          snapshots = await FirebaseFirestore.instance
+              .collection('Events')
+              .where('institutionID', isEqualTo: Preferences.institutionPref)
+              .get();
+        }
+
+
+        print('working with snapshot......');
         snapshots.docs.forEach((element) {
-          print(element.id);
+          print("the element is now: " + element.id);
           Event event = Event.fromMap(element.data());
-
           value.forEach((elmnt) {
             if(elmnt.eventID == event.eventID){
               event.isFavourite = elmnt.isFavourite;
               event.tagID = elmnt.tagID;
             }
-            print(elmnt.tagID);
           });
 
-          if(event.isPriority){
-            Preferences.featuredEventsCount++;
-          }
           _eventList.add(event);
           print(event.mapPDF != null ? event.mapPDF : "event mapPDF null");
-          print(_eventList.length);
         });
         print('docs got');
       }
@@ -183,9 +206,36 @@ Future<List> getEvents(BuildContext context, EventNotifier eventNotifier, String
   }catch(e){
     print("Something is wrong w/ database: " + e.toString());
   }
-print(Preferences.featuredEventsCount);
-  // ignore: unnecessary_statements
-  widgetName.contains('Upcoming') ? eventNotifier.eventList = _eventList : null;
+  Preferences.filteredEvents = _eventList;
+  return _eventList;
+}
+
+Future<List> getFeaturedEvents(BuildContext context, EventNotifier eventNotifier) async{
+
+  QuerySnapshot snapshots;
+  List<Event> _eventList = [];
+
+  await DatabaseService(uid: Preferences.uid).getEventFavourites().then((value) async {
+    snapshots = await FirebaseFirestore.instance
+        .collection('Events')
+        .where('isPriority', isEqualTo: true)
+        .get();
+
+    snapshots.docs.forEach((element) {
+      Event event = Event.fromMap(element.data());
+      value.forEach((elmnt) {
+        if (elmnt.eventID == event.eventID) {
+          event.isFavourite = elmnt.isFavourite;
+          event.tagID = elmnt.tagID;
+        }
+      });
+
+      _eventList.add(event);
+      print(event.mapPDF != null ? event.mapPDF : "event mapPDF null");
+      print(_eventList.length);
+    });
+  });
+
   return _eventList;
 }
 
